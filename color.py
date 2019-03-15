@@ -13,4 +13,8 @@ def color_name_to_rgb(name):
     try:
         return color_names[name.lower().strip()]
     except KeyError:
-        raise Exception(f"Color name not recognized: '{name}'")
+        raise Exception(f"""
+
+You gave a color name we don't understand: '{name}'
+If this our mistake, please let us know. Otherwise, try using the RGB number form of the color e.g. '(0, 255, 255)'.
+You can find the color form of a color on websites like this: https://www.rapidtables.com/web/color/RGB_Color.html\n""")

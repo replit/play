@@ -28,13 +28,13 @@ def _clamp(num, min_, max_):
         return max_
     return num
 
-class _Oops(Exception):
+class Oops(Exception):
     def __init__(self, message):
         # for readability, always prepend exception messages in the library with two blank lines
         message = '\n\n'+message
-        super(_Oops, self).__init__(message)
+        super(Oops, self).__init__(message)
 
-class _Hmm(UserWarning):
+class Hmm(UserWarning):
     pass
 
 all_sprites = []
@@ -128,12 +128,12 @@ class sprite(object):
     @transparency.setter
     def transparency(self, alpha):
         if not isinstance(alpha, float) and not isinstance(alpha, int):
-            raise _Oops(f"""Looks like you're trying to set {self._image}'s transparency to '{alpha}', which isn't a number.
+            raise Oops(f"""Looks like you're trying to set {self._image}'s transparency to '{alpha}', which isn't a number.
 Try looking in your code for where you're setting transparency for {self._image} and change it a number.
 """)
         if alpha > 100 or alpha < 0:
             warnings.warn(f"""The transparency setting for {self._image} is being set to {alpha} and it should be between 0 and 100.
-You might want to look in your code where you're setting transparency for {self.image} and make sure it's between 0 and 100.  """, _Hmm)
+You might want to look in your code where you're setting transparency for {self.image} and make sure it's between 0 and 100.  """, Hmm)
 
 
         self._transparency = _clamp(alpha, 0, 100)
@@ -181,7 +181,7 @@ You might want to look in your code where you're setting transparency for {self.
     def point_towards(self, angle):
         try:
             x, y = angle.x, angle.y
-            self.angle = math.degrees(math.atan2(y-self.y, x-self.x))
+            self.angle = math.degrees(math.atan2(self.y-y, x-self.x))
         except AttributeError:
             self.angle = angle
 
@@ -241,7 +241,7 @@ You might want to look in your code where you're setting transparency for {self.
         return self.x + (screen_width/2.) - (self._secondary_pygame_surface.get_width()/2.)
 
     def _pygame_y(self):
-        return self.y + (screen_height/2.) - (self._secondary_pygame_surface.get_height()/2.)
+        return (screen_height/2.) - self.y - (self._secondary_pygame_surface.get_height()/2.)
 
     def when_clicked(self, async_callback, call_with_sprite=False):
         async def wrapper():
@@ -382,7 +382,7 @@ _keypress_callbacks = []
 
 def when_any_key_pressed(func):
     if not callable(func):
-        raise _Oops("""
+        raise Oops("""
 
 @play.when_any_key_pressed doesn't take a list of keys. Try just this instead:
 
@@ -450,7 +450,7 @@ def _game_loop():
         if event.type == pygame.MOUSEBUTTONUP:
             mouse._is_clicked = False
         if event.type == pygame.MOUSEMOTION:
-            mouse.x, mouse.y = event.pos[0] - screen_width/2., event.pos[1] - screen_height/2.
+            mouse.x, mouse.y = (event.pos[0] - screen_width/2.), (screen_height/2. - event.pos[1])
         if event.type == pygame.KEYDOWN:
             _pressed_keys[event.key] = pygame_key_to_name(event)
             _keys_pressed_this_frame.append(pygame_key_to_name(event))
