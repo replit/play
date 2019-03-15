@@ -138,6 +138,9 @@ keypress_map = {
 def pygame_key_to_name(pygame_key_event):
     english_name = keypress_map[pygame_key_event.key]
     if not pygame_key_event.mod and len(english_name) > 1:
+        # use english names like 'space' instead of the space character ' '
         return english_name
     return pygame_key_event.unicode
+    # pygame_key_event.unicode is how we get e.g. # instead of 3 on US keyboards when shift+3 is pressed.
+    # It also gives us capital letters and things like that.
 
