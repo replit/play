@@ -1,4 +1,4 @@
-# Python Play 
+# Python Play (beta)
 ## A simple way to start making games and media in Python
 
 Play is a code library for the Python programming language that makes it as easy as possible to start making games. Here's the code to make a simple game using Play:
@@ -53,6 +53,17 @@ This code produces a game that looks like this:
 
 `@play.when_sprite_clicked()`
 
+--
+`play.mouse`
+
+`@play.mouse.when_clicked`
+
+`play.mouse.is_clicked()`
+
+`play.mouse.x, play.mouse.y`
+
+--
+
 `@sprite.when_clicked`
 
 
@@ -80,6 +91,10 @@ height
 `sprite.hide()`
 
 `sprite.show()`
+
+--
+
+`sprite.distance_to()`
 
 --
 

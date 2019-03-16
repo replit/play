@@ -185,9 +185,9 @@ You might want to look in your code where you're setting transparency for {self.
             x, y = sprite_or_x, y
         self.angle = math.degrees(math.atan2(self.y-y, x-self.x))
 
-    def increase_size(self, percent=10):
-        self._size += percent
-        self._should_recompute_secondary_surface = True
+    # def increase_size(self, percent=10):
+    #     self._size += percent
+    #     self._should_recompute_secondary_surface = True
 
     def go_to(self, sprite_or_x=None, y=None):
         """
@@ -276,11 +276,11 @@ class _mouse(object):
 
 mouse = _mouse()
 
-def new_text(words='hi :)', x=0, y=0, font='Arial.ttf', font_size=20, color='black', angle=0, transparency=100):
+def new_text(words='hi :)', x=0, y=0, font=None, font_size=50, color='black', angle=0, transparency=100):
     return text(words=words, x=x, y=y, font=font, font_size=font_size, size=100, color=color, angle=angle, transparency=transparency)
 
 class text(sprite):
-    def __init__(self, words='hi :)', x=0, y=0, font='Arial.ttf', font_size=20, size=100, color='black', angle=0, transparency=100):
+    def __init__(self, words='hi :)', x=0, y=0, font=None, font_size=50, size=100, color='black', angle=0, transparency=100):
         self._words = words
         self.x = x
         self.y = y
@@ -301,7 +301,13 @@ class text(sprite):
         all_sprites.append(self)
 
     def _compute_primary_surface(self):
-        self._pygame_font = pygame.font.Font(self._font, self._font_size)
+        try:
+            self._pygame_font = pygame.font.Font(self._font, self._font_size)
+        except:
+            warnings.warn(f"""We couldn't find the font file '{self._font}'. We'll use the default font instead for now.
+To fix this, make sure you have a font file (usually called something like Arial.ttf) in your project folder.""", Hmm)
+            self._pygame_font = pygame.font.Font(None, self._font_size)
+
         self._primary_pygame_surface = self._pygame_font.render(self._words, True, color_name_to_rgb(self._color))
         self._should_recompute_primary_surface = False
 
