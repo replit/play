@@ -178,12 +178,12 @@ You might want to look in your code where you're setting transparency for {self.
     def is_shown(self):
         return not self._is_hidden
 
-    def point_towards(self, angle):
+    def point_towards(self, sprite_or_x, y=None):
         try:
-            x, y = angle.x, angle.y
-            self.angle = math.degrees(math.atan2(self.y-y, x-self.x))
+            x, y = sprite_or_x.x, sprite_or_x.y
         except AttributeError:
-            self.angle = angle
+            x, y = sprite_or_x, y
+        self.angle = math.degrees(math.atan2(self.y-y, x-self.x))
 
     def increase_size(self, percent=10):
         self._size += percent
@@ -233,9 +233,9 @@ You might want to look in your code where you're setting transparency for {self.
     def height(self):
         return self._secondary_pygame_surface.get_height()
 
-    @property 
-    def right(self):
-        return self.x + self.width/2.
+    # @property 
+    # def right(self):
+    #     return self.x + self.width/2.
 
     def _pygame_x(self):
         return self.x + (screen_width/2.) - (self._secondary_pygame_surface.get_width()/2.)
@@ -382,9 +382,7 @@ _keypress_callbacks = []
 
 def when_any_key_pressed(func):
     if not callable(func):
-        raise Oops("""
-
-@play.when_any_key_pressed doesn't take a list of keys. Try just this instead:
+        raise Oops("""@play.when_any_key_pressed doesn't use a list of keys. Try just this instead:
 
 @play.when_any_key_pressed
 async def do(key):
@@ -414,11 +412,11 @@ def when_key_pressed(*keys):
 
 def key_is_pressed(*keys):
     """
-    Returns True if any of the keys are pressed.
+    Returns True if any of the given keys are pressed.
 
     Example:
 
-        @repeat_forever
+        @play.repeat_forever
         async def do():
             if play.key_is_pressed('up', 'w'):
                 print('up or w pressed')
@@ -426,7 +424,7 @@ def key_is_pressed(*keys):
     # Called this function key_is_pressed instead of is_key_pressed so it will
     # sound more english-like with if-statements:
     #
-    #   if play.key_is_pressed('w', 'up')
+    #   if play.key_is_pressed('w', 'up'): ...
 
     for key in keys:
         if key in _pressed_keys.itervalues():
@@ -537,7 +535,7 @@ def _game_loop():
         # synchronously then the data and rendered image may get out of sync
         if sprite._should_recompute_primary_surface:
             _loop.call_soon(sprite._compute_primary_surface)
-        if sprite._should_recompute_secondary_surface:
+        elif sprite._should_recompute_secondary_surface:
             _loop.call_soon(sprite._compute_secondary_surface)
 
         _pygame_display.blit(sprite._secondary_pygame_surface, (sprite._pygame_x(), sprite._pygame_y()) )
