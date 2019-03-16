@@ -305,7 +305,7 @@ class text(sprite):
             self._pygame_font = pygame.font.Font(self._font, self._font_size)
         except:
             warnings.warn(f"""We couldn't find the font file '{self._font}'. We'll use the default font instead for now.
-To fix this, make sure you have a font file (usually called something like Arial.ttf) in your project folder.""", Hmm)
+To fix this, make sure you have a font file (usually called something like Arial.ttf) in your project folder.\n""", Hmm)
             self._pygame_font = pygame.font.Font(None, self._font_size)
 
         self._primary_pygame_surface = self._pygame_font.render(self._words, True, color_name_to_rgb(self._color))
