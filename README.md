@@ -30,14 +30,17 @@ async def do():
 play.start_program()
 ```
 
-This code produces a game that looks like this:
+The code above makes a game where you have to click the cat to win:
 
-    gif
+![Clicking a cat game](example.gif)
 
-[You can try running and changing this code on repl.it!](todo)
+[You can try playing and changing this game on repl.it!](TODO)
 
+Keep reading to learn more about how to use Play.
 
-## Commands
+## Documentation
+
+### Basic Commands
 
 `play.new_sprite()`
 
@@ -45,7 +48,7 @@ This code produces a game that looks like this:
 
 `play.set_background_color()`
 
-## Control
+### Control
 
 `@play.repeat_forever`
 
@@ -57,7 +60,7 @@ This code produces a game that looks like this:
 
 `play.start_program()`
 
-## Keyboard 
+### Keyboard 
 
 `@play.when_any_key_pressed`
 
@@ -66,7 +69,7 @@ This code produces a game that looks like this:
 `play.key_is_pressed()`
 
 
-## Mouse
+### Mouse
 
 `@play.when_mouse_clicked`
 
@@ -86,7 +89,7 @@ This code produces a game that looks like this:
 `@sprite.when_clicked`
 
 
-## Sprites
+### Sprites
 
 
 image
@@ -122,4 +125,10 @@ height
 `sprite.is_hidden()`
 
 `sprite.is_shown()`
+
+### Other functions
+
+`play.random_number()`
+
+`play.random_color()`
 
