@@ -241,9 +241,21 @@ You might want to look in your code where you're setting transparency for {self.
     def height(self):
         return self._secondary_pygame_surface.get_height()
 
-    # @property 
-    # def right(self):
-    #     return self.x + self.width/2.
+    @property 
+    def right(self):
+        return self.x + self.width/2
+
+    @property 
+    def left(self):
+        return self.x - self.width/2
+
+    @property 
+    def top(self):
+        return self.y + self.height/2
+
+    @property 
+    def bottom(self):
+        return self.y - self.height/2
 
     def _pygame_x(self):
         return self.x + (screen_width/2.) - (self._secondary_pygame_surface.get_width()/2.)

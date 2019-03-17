@@ -226,6 +226,10 @@ Sprites also have some other useful info:
 
 - **`sprite.width`** — Gets how wide the sprite is in pixels.
 - **`sprite.height`** — Gets how tall the sprite is in pixels.
+- **`sprite.left`** — Gets the x position of the left-most part of the sprite.
+- **`sprite.right`** — Gets the x position of the right-most part of the sprite.
+- **`sprite.top`** — Gets the y position of the top-most part of the sprite.
+- **`sprite.bottom`** — Gets the y position of the bottom-most part of the sprite.
 - **`sprite.distance_to(other_sprite)`** — Gets the distance in pixels to `other_sprite`.
 - **`sprite.distance_to(x=100, y=100)`** — Gets the distance to the point x=100, y=100.
 - **`sprite.is_clicked()`** — Returns True if the sprite has been clicked this frame. Otherwise returns False.
@@ -296,6 +300,8 @@ play.random_number(0, 1.0)
 # example return value: 0.84
 ```
 
+`play.random_number() is also inclusive, which means `play.random_number(0,1)` will return `0` and `1`.
+
 
 #### `play.random_color()`
 
@@ -303,17 +309,33 @@ Returns a random RGB color, including white and black.
 
 ```python
 play.random_color()
-# example return value: (201, 14, 142)
+# example return value: (201, 17, 142)
 ```
 
 #### `play.repeat()`
 
-The same as Python's built-in `range` function, except it starts at 1. 'Repeat' is just a friendlier name than 'range'.
+The same as Python's built-in `range` function, except it starts at 1. 'Repeat' is just a friendlier and more descriptive name than 'range'.
 
 ```python
 list(play.repeat(10))
 # return value: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 ```
+
+#### `await play.animate()`
+
+When used in a loop, this command will animate any sprite changes that happen.
+
+```python
+cat = play.new_text('=^.^=')
+
+@play.when_program_starts
+async def do():
+    for count in play.repeat(360):
+        cat.turn(1)
+        await play.animate()
+```
+
+`await play.animate()` is the same as `await asyncio.sleep(0)`.
 
 
 ## What's with all this `async`/`await` stuff? Is this Python?
@@ -346,3 +368,5 @@ play.start_program()
 ```
 
 Both of the `@play.repeat_forever` blocks will run seemingly at the same time, which makes the code look a lot simpler for new programmers.
+
+Although it's annoying to have to type `async` before procedure definitions, we think the trade-off is worth it. Plus, we'd hope your IDE would be good enough so that brand new programmers don't have to type this stuff.
