@@ -16,7 +16,9 @@ async def do():
     cat.show()
 
     await play.timer(seconds=0.4)
+    
     cat.hide()
+
     await play.timer(seconds=0.4)
 
 @cat.when_clicked
