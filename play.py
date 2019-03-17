@@ -126,7 +126,7 @@ class sprite(object):
         self.x += steps
 
     def turn(self, degrees=10):
-        self.angle = self.angle + degrees
+        self.angle += degrees
 
     @property 
     def transparency(self):
