@@ -196,32 +196,33 @@ You might want to look in your code where you're setting transparency for {self.
     #     self._size += percent
     #     self._should_recompute_secondary_surface = True
 
-    def go_to(self, sprite_or_x=None, y=None):
+    def go_to(self, x=None, y=None):
         """
         Example:
 
             # text will follow around the mouse
-            text = play.new_text(words='yay', x=0, y=0, font='Arial.ttf', font_size=20, color='black')
+            text = play.new_text(words='yay')
 
             @play.repeat_forever
             async def do():
                 text.go_to(play.mouse)
         """
-        assert(not sprite_or_x is None)
+        assert(not x is None)
 
         try:
-            self.x = sprite_or_x.x
-            self.y = sprite_or_x.y
+            self.x = x.x
+            self.y = y.y
         except AttributeError:
-            self.x = sprite_or_x
+            self.x = x
             self.y = y 
 
-    def distance_to(self, sprite_or_x=None, y=None):
-        assert(not sprite_or_x is None)
+    def distance_to(self, x=None, y=None):
+        assert(not x is None)
 
         try:
-            x = sprite_or_x.x
-            y = sprite_or_x.y
+            # x can either by a number or a sprite. If it's a sprite:
+            x = x.x
+            y = x.y
         except AttributeError:
             x = sprite_or_x
             y = y
