@@ -78,7 +78,7 @@ play.set_background_color('light blue')
 
 
 
-### Animation
+## Animation
 
 #### `@play.repeat_forever`
 To make things move around, you can start by using `@play.repeat_forever`, like this:
