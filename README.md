@@ -13,10 +13,11 @@ async def do():
     cat.x = play.random_number(-200, 200)
     cat.y = play.random_number(-200, 200)
     cat.color = play.random_color()
+    
     cat.show()
 
     await play.timer(seconds=0.4)
-    
+
     cat.hide()
 
     await play.timer(seconds=0.4)
