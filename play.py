@@ -15,7 +15,6 @@ import math
 from keypress import pygame_key_to_name
 from color import color_name_to_rgb
 
-pygame = pygame
 pygame.init()
 screen_width, screen_height = 800, 600
 # _pygame_display = pygame.display.set_mode((screen_width, screen_height), pygame.DOUBLEBUF | pygame.OPENGL)
@@ -48,7 +47,15 @@ def debug(on_or_off):
         _debug = False
 
 def random_number(lowest=0, highest=100):
-    return random.randint(lowest, highest)
+    # if user supplies whole numbers, return whole numbers
+    if type(lowest) == int and type(highest) == int:
+        return random.randint(lowest, highest)
+    else:
+        # if user supplied any floats, return decimals
+        return round(random.uniform(lowest, highest), 2)
+
+def random_color():
+    return (random_number(0, 255), random_number(0, 255), random_number(0, 255))
 
 def new_sprite(image='cat.png', x=0, y=0, size=100, angle=0, transparency=100):
     return sprite(image=image, x=x, y=y, size=size, angle=angle, transparency=transparency)
@@ -305,7 +312,7 @@ class text(sprite):
             self._pygame_font = pygame.font.Font(self._font, self._font_size)
         except:
             warnings.warn(f"""We couldn't find the font file '{self._font}'. We'll use the default font instead for now.
-To fix this, make sure you have a font file (usually called something like Arial.ttf) in your project folder.\n""", Hmm)
+To fix this, either set the font to None, or make sure you have a font file (usually called something like Arial.ttf) in your project folder.\n""", Hmm)
             self._pygame_font = pygame.font.Font(None, self._font_size)
 
         self._primary_pygame_surface = self._pygame_font.render(self._words, True, color_name_to_rgb(self._color))
@@ -525,7 +532,7 @@ def _game_loop():
         #################################
         if mouse.is_clicked():
             # get_rect().collidepoint() is local coordinates, e.g. 100x100 image, so have to translate
-            if sprite._secondary_pygame_surface.get_rect().collidepoint((mouse.x+screen_width/2.)-sprite._pygame_x(), (mouse.y+screen_height/2.)-sprite._pygame_y()):
+            if sprite._secondary_pygame_surface.get_rect().collidepoint((mouse.x+screen_width/2.)-sprite._pygame_x(), (screen_height/2.-mouse.y)-sprite._pygame_y()):
                 sprite._is_clicked = True
 
                 # only run sprite clicks on the frame the mouse was clicked
@@ -537,9 +544,10 @@ def _game_loop():
 
         # do sprite image transforms (re-rendering images/fonts, scaling, rotating, etc)
 
-        # we put it in the event loop instead of just recomputing because if we do it
+        # we put it in the event loop instead of just recomputing immediately because if we do it
         # synchronously then the data and rendered image may get out of sync
         if sprite._should_recompute_primary_surface:
+            # recomputing primary surface also recomputes secondary surface
             _loop.call_soon(sprite._compute_primary_surface)
         elif sprite._should_recompute_secondary_surface:
             _loop.call_soon(sprite._compute_secondary_surface)
@@ -632,8 +640,6 @@ cool stuff to add:
         sprite.is_physics_on()
         box2d is_fixed_rotation good for platformers
     play.background_image('backgrounds/waterfall.png', fit_to_screen=False, x=0,y=0)
-    play.random_position()
-    play.random_color()
     sprite.flip(direction='left-right') sprite.flip(direction='up-down')
     sprite.flip(left_right=True, up_down=False)
 

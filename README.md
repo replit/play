@@ -1,12 +1,28 @@
 # Python Play (beta)
-## A simple way to start making games and media in Python
+## The easiest way to start coding games and graphics projects in Python
 
-Play is a code library for the Python programming language that makes it as easy as possible to start making games. Here's the code to make a simple game using Play:
+Play is an open-source code library for the Python programming language that makes it as easy as possible to start making games. Here's the code to make a simple game using Play:
 
 ```python
 import play
 
+cat = play.new_text('=^.^=', font_size=70)
 
+@play.repeat_forever
+async def do():
+    cat.x = play.random_number(-200, 200)
+    cat.y = play.random_number(-200, 200)
+    cat.color = play.random_color()
+    cat.show()
+
+    await play.timer(seconds=play.random_number(.2, .5))
+    cat.hide()
+    await play.timer(seconds=play.random_number(.2, .5))
+
+@cat.when_clicked
+async def do():
+    cat.show()
+    cat.words = 'You won!'
 
 play.start_program()
 ```
