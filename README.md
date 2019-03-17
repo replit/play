@@ -36,17 +36,36 @@ The code above makes a game where you have to click the cat to win:
 
 [You can try playing and changing this game on repl.it!](TODO)
 
-Keep reading to learn more about how to use Play.
 
-## Documentation
+## How to use Python Play
+
+All Python Play programs start with `import play` and end with `play.start_program()`, like this:
+
+```python
+import play
+
+
+play.start_program()
+```
+
+All other commands go between those two commands.
+
+To try any of the following examples, go to **[repl.it and change the code](TODO)**
 
 ### Basic Commands
 
-`play.new_sprite()`
+To get images or text on the screen, use `play.new_sprite()` and `play.new_text()`.
 
-`play.new_text()`
+```python
+character = play.new_sprite(image='character.png', x=0, y=0, size=100, transparency=100)
+```
 
-`play.set_background_color()`
+
+```python
+speech = play.new_text(words='hey there', x=0, y=0, font='', font_size=50, color='black', transparency=100)
+```
+
+
 
 ### Control
 
@@ -126,9 +145,14 @@ height
 
 `sprite.is_shown()`
 
-### Other functions
+
+
+### Other Commands
 
 `play.random_number()`
 
 `play.random_color()`
 
+`play.set_background_color()`
+
+`await play.animate()`
