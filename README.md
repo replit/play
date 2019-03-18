@@ -34,8 +34,15 @@ The code above makes a game where you have to click the cat to win:
 
 ![Clicking a cat game](example.gif)
 
-[You can try playing and changing this game on repl.it!](TODO)
+**[You can try playing and changing this game on repl.it!](TODO)**
 
+# How to install Python Play
+
+Run the following command in your terminal:
+
+    pip install replit-play
+
+Or you can just go to [repl.it](TODO) and you won't have to install anything :)
 
 # How to use Python Play
 
@@ -192,7 +199,7 @@ Sprites also have properties that can be changed to change how the sprite looks.
 - **`sprite.x`** — The sprite's horizontal position on the screen. Positive numbers are right, negative numbers are left. The default is 0.
 - **`sprite.y`** — The sprite's vertical position on the screen. Positive numbers are up, negative numbers are down. The default is 0.
 - **`sprite.size`** — How big the sprite is. The default is 100, but it can be made bigger or smaller.
-- **`sprite.angle`** — How turned the sprite is. Positive numbers are clockwise. The default is 0 degrees (pointed to the right).
+- **`sprite.angle`** — How much the sprite is turned. Positive numbers are clockwise. The default is 0 degrees (pointed to the right).
 - **`sprite.transparency`** — How see-through the sprite is from 0 to 100. 0 is completely see-through, 100 is not see-through at all. The default is 100.
 
 These properties can changed to do the same things as the commands above. For example,
@@ -206,7 +213,7 @@ sprite.x = other_sprite.x
 sprite.y = other_sprite.y
 ```
 
-You can change the properties to animate the sprites:
+You can change the properties to animate the sprites. The code below makes the cat turn around.
 
 ```python
 cat = play.new_text('=^.^=')
@@ -217,7 +224,7 @@ async def do():
     # the line above is the same as cat.turn(1)
 ```
 
-The code above makes the cat turn around.
+
 
 
 #### Other info
@@ -232,8 +239,8 @@ Sprites also have some other useful info:
 - **`sprite.bottom`** — Gets the y position of the bottom-most part of the sprite.
 - **`sprite.distance_to(other_sprite)`** — Gets the distance in pixels to `other_sprite`.
 - **`sprite.distance_to(x=100, y=100)`** — Gets the distance to the point x=100, y=100.
-- **`sprite.is_clicked()`** — Returns True if the sprite has been clicked this frame. Otherwise returns False.
-- **`sprite.is_hidden()`** — Returns True if the sprite has been hidden with the `sprite.hide()` commands. Otherwise returns False.
+- **`sprite.is_clicked()`** — Returns True if the sprite has just been clicked, otherwise returns False.
+- **`sprite.is_hidden()`** — Returns True if the sprite has been hidden with the `sprite.hide()` command. Otherwise returns False.
 - **`sprite.is_shown()`** — Returns True if the sprite has not been hidden with the `sprite.hide()` command. Otherwise returns False.
 
 
@@ -246,14 +253,14 @@ Sprites also have some other useful info:
 Working with the mouse in Python Play is easy. Here's a simple program that points a sprite at the mouse:
 
 ```python
-face = play.new_text('>_>')
+arrow = play.new_text('-->', font_size=100)
 
 @play.repeat_forever
 async def do():
-    face.point_towards(play.mouse)
+    arrow.point_towards(play.mouse)
 ```
 
-`play.mouse` is like a sprite and has the following properties:
+`play.mouse` has the following properties:
 
 - **`play.mouse.x`** — The horizontal x position of the mouse.
 - **`play.mouse.y`** — The vertical y position of the mouse.
@@ -263,7 +270,9 @@ async def do():
 
 #### `@sprite.when_clicked`
 
-Probably the easiest way to detect clicks is to use `@sprite.when_clicked`, like so:
+Probably the easiest way to detect clicks is to use `@sprite.when_clicked`.
+
+In the program below, when the face is clicked it changes for 1 second then turns back to normal:
 
 ```python
 face = play.new_text('^.^', font_size=100)
@@ -275,7 +284,6 @@ async def do():
     face.words = '^.^'
 ```
 
-In the above program, when the face is clicked it changes for 1 second then turns back to normal. Note how `@face.when_clicked` makes it easy to run code when the face is clicked.
 
 
 
@@ -320,17 +328,61 @@ async def do():
 
 ## Keyboard Commands
 
-`@play.when_any_key_pressed`
 
-`@play.when_key_pressed()`
+#### `@play.when_key_pressed()`
 
-`play.key_is_pressed()`
+You can use `@play.when_key_pressed()` to run code when specific keys are pressed.
+
+In the code below, pressing the `space` key will change the cat's face, and pressing the `enter` key will change it to a different face.
+
+```python
+cat = play.new_text('=^.^=')
+
+@play.when_key_pressed('space', 'enter') # if either the space key or enter key are pressed...
+async def do(key):
+    if key == 'enter':
+        cat.words = '=-.-='
+    if key == 'space':
+        cat.words = '=*_*='
+```
 
 
+#### `play.key_is_pressed()`
 
---
+You can also use `play.key_is_pressed()` to detect keypresses.
+
+In the code below, pressing the arrow keys or w/a/s/d will make the cat go in the desired direction.
+
+```python
+cat = play.new_text('=^.^=')
+
+@play.repeat_forever
+async def do():
+    if play.key_is_pressed('up', 'w'):
+        cat.y += 15
+    if play.key_is_pressed('down', 's'):
+        cat.y -= 15
+
+    if play.key_is_pressed('right', 'd'):
+        cat.x += 15
+    if play.key_is_pressed('left', 'a'):
+        cat.x -= 15
+```
 
 
+#### `@play.when_any_key_pressed`
+
+If you just want to detect when any key is pressed, you can use `@play.when_any_key_pressed`.
+
+In the code below, any key you press will be displayed on the screen:
+
+```python
+text = play.new_text('')
+
+@play.repeat_forever
+async def do(key):
+    text.words = f'{key} pressed!'
+```
 
 
 
@@ -345,10 +397,10 @@ If two whole numbers are given, `play.random_number()` will give a whole number 
 
 ```python
 play.random_number(lowest=0, highest=100)
-# the same as play.random_number(0, 100)
 
 # example return value: 42
 ```
+(You can also do `play.random_number(0, 100)`.)
 
 If non-whole numbers are given, non-whole numbers are given back:
 
@@ -357,7 +409,7 @@ play.random_number(0, 1.0)
 # example return value: 0.84
 ```
 
-`play.random_number() is also inclusive, which means `play.random_number(0,1)` will return `0` and `1`.
+`play.random_number()` is also inclusive, which means `play.random_number(0,1)` will return `0` and `1`.
 
 
 #### `play.random_color()`
@@ -373,7 +425,7 @@ Each value varies from 0 to 255.
 
 #### `play.repeat()`
 
-The same as Python's built-in `range` function, except it starts at 1. 'Repeat' is just a friendlier and more descriptive name than 'range'.
+`play.repeat()` is the same as Python's built-in `range` function, except it starts at 1. 'Repeat' is just a friendlier and more descriptive name than 'range'.
 
 ```python
 list(play.repeat(10))
@@ -394,7 +446,7 @@ async def do():
         await play.animate()
 ```
 
-`await play.animate()` is the same as `await asyncio.sleep(0)`.
+`await play.animate()` is the same as `await asyncio.sleep(0)` except it has a friendlier name for beginners.
 
 
 ## What's with all this `async`/`await` stuff? Is this Python?

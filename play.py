@@ -455,7 +455,7 @@ def key_is_pressed(*keys):
     #   if play.key_is_pressed('w', 'up'): ...
 
     for key in keys:
-        if key in _pressed_keys.itervalues():
+        if key in _pressed_keys.values():
             return True
     return False
 
