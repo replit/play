@@ -23,8 +23,8 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
     ],
+    python_requires=">=3.7",
     packages=["play"],
     include_package_data=True,
     install_requires=["pygame", "numpy"],
-    },
 )

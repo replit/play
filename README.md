@@ -34,7 +34,7 @@ The code above makes a game where you have to click the cat to win:
 
 ![Clicking a cat game](example.gif)
 
-**[You can try playing and changing this game on repl.it!](TODO)**
+**[You can try playing and changing this game on repl.it!](http://repl.it)**
 
 # How to install Python Play
 
@@ -42,7 +42,7 @@ Run the following command in your terminal:
 
     pip install replit-play
 
-Or you can just go to [repl.it](TODO) and you won't have to install anything :)
+Or you can just go to [repl.it](http://repl.it) and you won't have to install anything :)
 
 # How to use Python Play
 
@@ -57,7 +57,7 @@ play.start_program()
 
 All other commands go between those two commands.
 
-To try any of the following examples, go to **[repl.it and try pasting code in](TODO)**.
+To try any of the following examples, go to **[repl.it and try pasting code in](http://repl.it)**.
 
 ## Basic Commands
 
