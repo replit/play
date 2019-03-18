@@ -191,7 +191,7 @@ Sprites also have properties that can be changed to change how the sprite looks.
 
 - **`sprite.x`** — The sprite's horizontal position on the screen. Positive numbers are right, negative numbers are left. The default is 0.
 - **`sprite.y`** — The sprite's vertical position on the screen. Positive numbers are up, negative numbers are down. The default is 0.
-- **`sprite.size`** — How big the sprite is from 0 to 100. The default is 100.
+- **`sprite.size`** — How big the sprite is. The default is 100, but it can be made bigger or smaller.
 - **`sprite.angle`** — How turned the sprite is. Positive numbers are clockwise. The default is 0 degrees (pointed to the right).
 - **`sprite.transparency`** — How see-through the sprite is from 0 to 100. 0 is completely see-through, 100 is not see-through at all. The default is 100.
 
@@ -240,22 +240,79 @@ Sprites also have some other useful info:
 
 
 
+
 ## Mouse Commands
 
-`@sprite.when_clicked`
+Working with the mouse in Python Play is easy. Here's a simple program that points a sprite at the mouse:
 
-`@play.when_mouse_clicked`
+```python
+face = play.new_text('>_>')
 
-`@play.when_sprite_clicked()`
+@play.repeat_forever
+async def do():
+    face.point_towards(play.mouse)
+```
 
---
-`play.mouse`
+`play.mouse` is like a sprite and has the following properties:
 
-`@play.mouse.when_clicked`
+- **`play.mouse.x`** — The horizontal x position of the mouse.
+- **`play.mouse.y`** — The vertical y position of the mouse.
+- **`play.mouse.is_clicked()`** — Returns `True` if the mouse is clicked down, or `False` if it's not.
 
-`play.mouse.is_clicked()`
 
-`play.mouse.x, play.mouse.y`
+
+#### `@sprite.when_clicked`
+
+Probably the easiest way to detect clicks is to use `@sprite.when_clicked`, like so:
+
+```python
+face = play.new_text('^.^', font_size=100)
+
+@face.when_clicked
+async def do():
+    face.words = '*o*'
+    await play.timer(seconds=1)
+    face.words = '^.^'
+```
+
+In the above program, when the face is clicked it changes for 1 second then turns back to normal. Note how `@face.when_clicked` makes it easy to run code when the face is clicked.
+
+
+
+#### `@play.when_sprite_clicked()`
+
+If you wanted to run the same code when multiple sprites are clicked, you can use `@play.when_sprite_clicked()`:
+
+```python
+face1 = play.new_text('^.^', font_size=100)
+face2 = play.new_text('^_^', font_size=100)
+
+@play.when_sprite_clicked(face1, face2) # takes as many sprites as you want
+async def do(sprite):
+    starting_words = sprite.words
+    sprite.words = '*o*'
+    await play.timer(seconds=1)
+    sprite.words = starting_words
+```
+
+In the above program, clicking `face1` or `face2` will run the code for each sprite.
+
+
+
+#### `@play.mouse.when_clicked`
+
+To run code when the mouse is clicked anywhere, use `@play.mouse.when_clicked`.
+
+In the code below, when a click is detected, the text will move to the click location and the coordinates will be shown:
+
+```python
+text = play.new_text('0, 0')
+
+@play.mouse.when_clicked
+async def do():
+    text.words = f'{play.mouse.x}, {play.mouse.y}'
+    text.go_to(play.mouse)
+```
 
 
 
@@ -312,6 +369,8 @@ play.random_color()
 # example return value: (201, 17, 142)
 ```
 
+Each value varies from 0 to 255.
+
 #### `play.repeat()`
 
 The same as Python's built-in `range` function, except it starts at 1. 'Repeat' is just a friendlier and more descriptive name than 'range'.
@@ -367,6 +426,6 @@ async def do():
 play.start_program()
 ```
 
-Both of the `@play.repeat_forever` blocks will run seemingly at the same time, which makes the code look a lot simpler for new programmers.
+Both of the `@play.repeat_forever` functions will run seemingly at the same time, which makes the code look a lot simpler for new programmers.
 
 Although it's annoying to have to type `async` before procedure definitions, we think the trade-off is worth it. Plus, we'd hope your IDE would be good enough so that brand new programmers don't have to type this stuff.

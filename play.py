@@ -201,7 +201,7 @@ You might want to look in your code where you're setting transparency for {self.
         Example:
 
             # text will follow around the mouse
-            text = play.new_text(words='yay')
+            text = play.new_text('yay')
 
             @play.repeat_forever
             async def do():
@@ -210,8 +210,9 @@ You might want to look in your code where you're setting transparency for {self.
         assert(not x is None)
 
         try:
+            # users can call e.g. sprite.go_to(play.mouse), so x will be an object with x and y
             self.x = x.x
-            self.y = y.y
+            self.y = x.y
         except AttributeError:
             self.x = x
             self.y = y 
@@ -231,6 +232,7 @@ You might want to look in your code where you're setting transparency for {self.
         dy = self.y - y
 
         return math.sqrt(dx**2 + dy**2)
+
 
 
     @property 
