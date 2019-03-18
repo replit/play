@@ -389,6 +389,11 @@ async def do(key):
 
 ## Other Useful Commands
 
+#### `play.screen_width` and `play.screen_height`
+
+Get the screen width and height. `play.screen_width` is 800 and `play.screen_height` is 600 by default.
+
+
 #### `play.random_number()`
 
 A function that makes random numbers.
