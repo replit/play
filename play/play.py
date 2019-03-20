@@ -12,8 +12,8 @@ import asyncio
 import random
 import math
 
-from .keypress import pygame_key_to_name
-from .color import color_name_to_rgb
+from .keypress import pygame_key_to_name as _pygame_key_to_name # don't pollute user-facing namespace with library internals
+from .color import color_name_to_rgb as _color_name_to_rgb
 
 pygame.init()
 screen_width, screen_height = 800, 600
@@ -330,7 +330,7 @@ class text(sprite):
 To fix this, either set the font to None, or make sure you have a font file (usually called something like Arial.ttf) in your project folder.\n""", Hmm)
             self._pygame_font = pygame.font.Font(None, self._font_size)
 
-        self._primary_pygame_surface = self._pygame_font.render(self._words, True, color_name_to_rgb(self._color))
+        self._primary_pygame_surface = self._pygame_font.render(self._words, True, _color_name_to_rgb(self._color))
         self._should_recompute_primary_surface = False
 
         self._compute_secondary_surface(force=True)
@@ -389,7 +389,7 @@ def set_background_color(color):
     if type(color) == tuple:
         background_color = color
     else:
-        background_color = color_name_to_rgb(color)
+        background_color = _color_name_to_rgb(color)
 
 def when_sprite_clicked(*sprites):
     def wrapper(func):
@@ -463,6 +463,7 @@ _loop = asyncio.get_event_loop()
 _loop.set_debug(True)
 
 _keys_pressed_this_frame = []
+_keys_to_skip = [pygame.K_MODE]
 def _game_loop():
     _keys_pressed_this_frame.clear() # do this instead of `_keys_pressed_this_frame = []` to save a tiny bit of memory
     click_happened_this_frame = False
@@ -478,16 +479,18 @@ def _game_loop():
         if event.type == pygame.MOUSEMOTION:
             mouse.x, mouse.y = (event.pos[0] - screen_width/2.), (screen_height/2. - event.pos[1])
         if event.type == pygame.KEYDOWN:
-            _pressed_keys[event.key] = pygame_key_to_name(event)
-            _keys_pressed_this_frame.append(pygame_key_to_name(event))
+            if not (event.key in _keys_to_skip):
+                name = _pygame_key_to_name(event)
+                _pressed_keys[event.key] = name
+                _keys_pressed_this_frame.append(name)
         if event.type == pygame.KEYUP:
             del _pressed_keys[event.key]
 
 
 
-    ####################################
-    # @when_any_key_pressed callbacks
-    ####################################
+    ############################################################
+    # @when_any_key_pressed and @when_key_pressed callbacks
+    ############################################################
     if _keys_pressed_this_frame:
         for key in _keys_pressed_this_frame:
             for callback in _keypress_callbacks:
@@ -526,7 +529,7 @@ def _game_loop():
 
 
 
-    _pygame_display.fill(color_name_to_rgb(background_color))
+    _pygame_display.fill(_color_name_to_rgb(background_color))
 
     # BACKGROUND COLOR
     # note: cannot use screen.fill((1, 1, 1)) because pygame's screen
