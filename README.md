@@ -192,6 +192,7 @@ Sprites (images and text) have a few simple commands:
 - **`sprite.hide()`** — Hides `sprite`. It can't be clicked when it's hidden.
 - **`sprite.show()`** — Shows `sprite` if it's hidden.
 
+
 #### Properties
 
 Sprites also have properties that can be changed to change how the sprite looks. Here they are:
@@ -202,7 +203,18 @@ Sprites also have properties that can be changed to change how the sprite looks.
 - **`sprite.angle`** — How much the sprite is turned. Positive numbers are clockwise. The default is 0 degrees (pointed to the right).
 - **`sprite.transparency`** — How see-through the sprite is from 0 to 100. 0 is completely see-through, 100 is not see-through at all. The default is 100.
 
-These properties can changed to do the same things as the commands above. For example,
+Image-sprite specific properties:
+
+- **`sprite.image`** — The filename of the image that will be shown.
+
+Text-specific properties:
+
+- **`text.words`** — The displayed text content. The default is `'hi :)'`.
+- **`text.font`** — The filename of the font e.g. 'Arial.ttf'. The default is `None`, which will use a built-in font.
+- **`text.font_size`** — The text's size. The default is `50` (pt).
+- **`text.color`** — The text's color. The default is black.
+
+These properties can changed to do the same things as the sprite commands above. For example,
 
 ```python
 sprite.go_to(other_sprite)
