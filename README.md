@@ -304,8 +304,8 @@ async def do():
 If you wanted to run the same code when multiple sprites are clicked, you can use `@play.when_sprite_clicked()`:
 
 ```python
-face1 = play.new_text('^.^', font_size=100)
-face2 = play.new_text('^_^', font_size=100)
+face1 = play.new_text('^.^', x=-100, font_size=100)
+face2 = play.new_text('^_^', x=100, font_size=100)
 
 @play.when_sprite_clicked(face1, face2) # takes as many sprites as you want
 async def do(sprite):
