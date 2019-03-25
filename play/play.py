@@ -338,23 +338,24 @@ class box(sprite):
         self._is_hidden = False
 
         self._when_clicked_callbacks = []
-        
+
         self._compute_primary_surface()
 
         all_sprites.append(self)
 
     def _compute_primary_surface(self):
-        self._primary_pygame_surface = pygame.Surface((self._width, self._height))
+        self._primary_pygame_surface = pygame.Surface((self._width, self._height), pygame.SRCALPHA)
 
-        self._primary_pygame_surface.fill((255, 255, 255, 0))
 
         if self._border_width and self._border_color:
             # draw border rectangle
-            pygame.draw.rect(self._primary_pygame_surface, _color_name_to_rgb(self._border_color), (0,0,self._width,self._height))
+            # pygame.draw.rect(self._primary_pygame_surface, _color_name_to_rgb(self._border_color), (0,0,self._width,self._height))
+            self._primary_pygame_surface.fill(_color_name_to_rgb(self._border_color))
             # draw fill rectangle over border rectangle at the proper position
             pygame.draw.rect(self._primary_pygame_surface, _color_name_to_rgb(self._color), (self._border_width,self._border_width,self._width-2*self._border_width,self._height-2*self.border_width))
+
         else:
-            pygame.draw.rect(self._primary_pygame_surface, _color_name_to_rgb(self.color), (0,0,self._width,self._height))
+            self._primary_pygame_surface.fill(_color_name_to_rgb(self._color))
 
         self._should_recompute_primary_surface = False
         self._compute_secondary_surface(force=True)
