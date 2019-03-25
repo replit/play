@@ -194,7 +194,7 @@ To break down the code:
 Sprites (images and text) have a few simple commands:
 
 - **`sprite.move(10)`** — moves the sprite 10 pixels in the direction it's facing (starts facing right). Use negative numbers (-10) to go backward.
-- **`sprite.turn(20)`** — Turns the sprite 20 degrees clockwise. Use negative numbers (-20) to turn the other way.
+- **`sprite.turn(20)`** — Turns the sprite 20 degrees counter-clockwise. Use negative numbers (-20) to turn the other way.
 - **`sprite.go_to(other_sprite)`** — Makes `sprite` go to another sprite named `other_sprite`'s position on the screen.
 - **`sprite.go_to(x=100, y=50)`** — Makes `sprite` go to x=100, y=50 (right and up a little).
 - **`sprite.point_towards(other_sprite)`** — Turns `sprite` so it points at another sprite called `other_sprite`.
@@ -209,7 +209,7 @@ Sprites also have properties that can be changed to change how the sprite looks.
 - **`sprite.x`** — The sprite's horizontal position on the screen. Positive numbers are right, negative numbers are left. The default is 0.
 - **`sprite.y`** — The sprite's vertical position on the screen. Positive numbers are up, negative numbers are down. The default is 0.
 - **`sprite.size`** — How big the sprite is. The default is 100, but it can be made bigger or smaller.
-- **`sprite.angle`** — How much the sprite is turned. Positive numbers are clockwise. The default is 0 degrees (pointed to the right).
+- **`sprite.angle`** — How much the sprite is turned. Positive numbers are counter-clockwise. The default is 0 degrees (pointed to the right).
 - **`sprite.transparency`** — How see-through the sprite is from 0 to 100. 0 is completely see-through, 100 is not see-through at all. The default is 100.
 
 Image-sprite specific properties:

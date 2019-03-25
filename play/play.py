@@ -137,7 +137,7 @@ class sprite(object):
 
         # rotate
         if (self.angle != 0) or force:
-            self._secondary_pygame_surface = pygame.transform.rotate(self._secondary_pygame_surface, self._angle*-1)
+            self._secondary_pygame_surface = pygame.transform.rotate(self._secondary_pygame_surface, self._angle)
 
 
         self._should_recompute_secondary_surface = False
@@ -162,8 +162,8 @@ class sprite(object):
 Try looking in your code for where you're setting transparency for {self._image} and change it a number.
 """)
         if alpha > 100 or alpha < 0:
-            warnings.warn(f"""The transparency setting for {self._image} is being set to {alpha} and it should be between 0 and 100.
-You might want to look in your code where you're setting transparency for {self.image} and make sure it's between 0 and 100.  """, Hmm)
+            warnings.warn(f"""The transparency setting for {self} is being set to {alpha} and it should be between 0 and 100.
+You might want to look in your code where you're setting transparency and make sure it's between 0 and 100.  """, Hmm)
 
 
         self._transparency = _clamp(alpha, 0, 100)
@@ -208,16 +208,13 @@ You might want to look in your code where you're setting transparency for {self.
     def is_shown(self):
         return not self._is_hidden
 
-    def point_towards(self, sprite_or_x, y=None):
+    def point_towards(self, x, y=None):
         try:
-            x, y = sprite_or_x.x, sprite_or_x.y
+            x, y = x.x, x.y
         except AttributeError:
-            x, y = sprite_or_x, y
-        self.angle = math.degrees(math.atan2(self.y-y, x-self.x))
+            x, y = x, y
+        self.angle = math.degrees(math.atan2(y-self.y, x-self.x))
 
-    # def increase_size(self, percent=10):
-    #     self._size += percent
-    #     self._should_recompute_secondary_surface = True
 
     def go_to(self, x=None, y=None):
         """
@@ -340,12 +337,16 @@ class box(sprite):
         self._angle = angle
         self._is_hidden = False
 
+        self._when_clicked_callbacks = []
+        
         self._compute_primary_surface()
 
         all_sprites.append(self)
 
     def _compute_primary_surface(self):
         self._primary_pygame_surface = pygame.Surface((self._width, self._height))
+
+        self._primary_pygame_surface.fill((255, 255, 255, 0))
 
         if self._border_width and self._border_color:
             # draw border rectangle
@@ -425,7 +426,7 @@ class text(sprite):
         self._font_size = font_size
         self._color = color
         self._size = size
-        self.angle = angle
+        self._angle = angle
         self.transparency = transparency
 
         self._is_clicked = False
