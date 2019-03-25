@@ -72,6 +72,14 @@ This will place an image in the middle of the screen. Make sure you have a file 
 
 If you want to change where the image is on the screen, try changing `x=0` (horizontal position) and `y=0` (vertical position). Positive x is to the right and positive y is up.
 
+#### `play.new_box()`
+```python
+box = play.new_box(color='black', x=0, y=0, width=100, height=200, border_color="light blue", border_width=0)
+```
+
+This will put a tall, black box in the middle of the screen.
+
+
 #### `play.new_text()`
 ```python
 greeting = play.new_text(words='hey there', x=50, y=0, angle=0, font=None, font_size=50, color='black', transparency=100)
@@ -82,8 +90,9 @@ This will put some text on the screen.
 If you want to change the font, you'll need a font file (usually named something like `Arial.ttf`) in your project files. Then you can change `font=None` to `font='Arial.ttf'`.
 
 
+
 #### `play.set_background_color()`
-You can also change the background color with the `play.set_background_color()` command:
+You can change the background color with the `play.set_background_color()` command:
 
 ```python
 play.set_background_color('light blue')
@@ -401,9 +410,22 @@ async def do(key):
 
 ## Other Useful Commands
 
-#### `play.screen_width` and `play.screen_height`
 
-Get the screen width and height. `play.screen_width` is 800 and `play.screen_height` is 600 by default.
+#### `play.screen`
+
+The way to get information about the screen. `play.screen` has these properties:
+
+- `play.screen.width` - Defaults to 800 (pixels total).
+- `play.screen.height` - Defaults to 600 (pixels total).
+- `play.screen.left` - `x` coordinate for the left edge of the screen.
+- `play.screen.right` - `x` coordinate for the right edge of the screen.
+- `play.screen.top` - `y` coordinate for the top of the screen.
+- `play.screen.bottom` - `y` coordinate for the bottom of the screen.
+
+
+#### `play.all_sprites`
+
+A list of all the sprites (images, shapes, text) in the program.
 
 
 #### `play.random_number()`

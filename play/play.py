@@ -16,9 +16,32 @@ from .keypress import pygame_key_to_name as _pygame_key_to_name # don't pollute 
 from .color import color_name_to_rgb as _color_name_to_rgb
 
 pygame.init()
-screen_width, screen_height = 800, 600
+
+class _screen(object):
+    def __init__(self, width=800, height=600):
+        self.width = width
+        self.height = height
+
+    @property 
+    def top(self):
+        return self.height / 2
+
+    @property 
+    def bottom(self):
+        return self.height / -2
+
+    @property 
+    def left(self):
+        return self.width / -2
+
+    @property 
+    def right(self):
+        return self.width / 2
+
+screen = _screen()
+
 # _pygame_display = pygame.display.set_mode((screen_width, screen_height), pygame.DOUBLEBUF | pygame.OPENGL)
-_pygame_display = pygame.display.set_mode((screen_width, screen_height), pygame.DOUBLEBUF)
+_pygame_display = pygame.display.set_mode((screen.width, screen.height), pygame.DOUBLEBUF)
 
 def _clamp(num, min_, max_):
     if num < min_:
@@ -65,9 +88,9 @@ class sprite(object):
         self._image = image
         self.x = x
         self.y = y
-        self.angle = angle
+        self._angle = angle
         self._size = size
-        self.transparency = transparency
+        self._transparency = transparency
 
         self._is_clicked = False
         self._is_hidden = False
@@ -260,10 +283,10 @@ You might want to look in your code where you're setting transparency for {self.
         return self.y - self.height/2
 
     def _pygame_x(self):
-        return self.x + (screen_width/2.) - (self._secondary_pygame_surface.get_width()/2.)
+        return self.x + (screen.width/2.) - (self._secondary_pygame_surface.get_width()/2.)
 
     def _pygame_y(self):
-        return (screen_height/2.) - self.y - (self._secondary_pygame_surface.get_height()/2.)
+        return (screen.height/2.) - self.y - (self._secondary_pygame_surface.get_height()/2.)
 
     def when_clicked(self, async_callback, call_with_sprite=False):
         async def wrapper():
@@ -276,6 +299,7 @@ You might want to look in your code where you're setting transparency for {self.
         wrapper.is_running = False
         self._when_clicked_callbacks.append(wrapper)
         return wrapper
+
 
 class _mouse(object):
     def __init__(self):
@@ -297,6 +321,97 @@ class _mouse(object):
         return wrapper
 
 mouse = _mouse()
+
+def new_box(color='black', x=0, y=0, width=100, height=200, border_color='light blue', border_width=0):
+    return box(color=color, x=x, y=y, width=width, height=height, border_color=border_color, border_width=border_width)
+
+class box(sprite):
+    def __init__(self, color='black', x=0, y=0, width=100, height=200, border_color='black', border_width=0, transparency=100, size=100, angle=0):
+        self.x = x
+        self.y = y
+        self._width = width
+        self._height = height
+        self._color = color
+        self._border_color = border_color
+        self._border_width = border_width
+
+        self._transparency = transparency
+        self._size = size
+        self._angle = angle
+        self._is_hidden = False
+
+        self._compute_primary_surface()
+
+        all_sprites.append(self)
+
+    def _compute_primary_surface(self):
+        self._primary_pygame_surface = pygame.Surface((self._width, self._height))
+
+        if self._border_width and self._border_color:
+            # draw border rectangle
+            pygame.draw.rect(self._primary_pygame_surface, _color_name_to_rgb(self._border_color), (0,0,self._width,self._height))
+            # draw fill rectangle over border rectangle at the proper position
+            pygame.draw.rect(self._primary_pygame_surface, _color_name_to_rgb(self._color), (self._border_width,self._border_width,self._width-2*self._border_width,self._height-2*self.border_width))
+        else:
+            pygame.draw.rect(self._primary_pygame_surface, _color_name_to_rgb(self.color), (0,0,self._width,self._height))
+
+        self._should_recompute_primary_surface = False
+        self._compute_secondary_surface(force=True)
+
+
+    ##### width #####
+    @property 
+    def width(self):
+        return self._width
+
+    @width.setter
+    def width(self, _width):
+        self._width = _width
+        self._should_recompute_primary_surface = True
+
+
+    ##### height #####
+    @property 
+    def height(self):
+        return self._height
+
+    @height.setter
+    def height(self, _height):
+        self._height = _height
+        self._should_recompute_primary_surface = True
+
+
+    ##### color #####
+    @property 
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, _color):
+        self._color = _color
+        self._should_recompute_primary_surface = True
+
+    ##### border_color #####
+    @property 
+    def border_color(self):
+        return self._border_color
+
+    @border_color.setter
+    def border_color(self, _border_color):
+        self._border_color = _border_color
+        self._should_recompute_primary_surface = True
+
+
+    ##### border_width #####
+    @property 
+    def border_width(self):
+        return self._border_width
+
+    @border_width.setter
+    def border_width(self, _border_width):
+        self._border_width = _border_width
+        self._should_recompute_primary_surface = True
+
 
 def new_text(words='hi :)', x=0, y=0, font=None, font_size=50, color='black', angle=0, transparency=100):
     return text(words=words, x=x, y=y, font=font, font_size=font_size, size=100, color=color, angle=angle, transparency=transparency)
@@ -477,7 +592,7 @@ def _game_loop():
         if event.type == pygame.MOUSEBUTTONUP:
             mouse._is_clicked = False
         if event.type == pygame.MOUSEMOTION:
-            mouse.x, mouse.y = (event.pos[0] - screen_width/2.), (screen_height/2. - event.pos[1])
+            mouse.x, mouse.y = (event.pos[0] - screen.width/2.), (screen.height/2. - event.pos[1])
         if event.type == pygame.KEYDOWN:
             if not (event.key in _keys_to_skip):
                 name = _pygame_key_to_name(event)
@@ -551,7 +666,7 @@ def _game_loop():
         #################################
         if mouse.is_clicked():
             # get_rect().collidepoint() is local coordinates, e.g. 100x100 image, so have to translate
-            if sprite._secondary_pygame_surface.get_rect().collidepoint((mouse.x+screen_width/2.)-sprite._pygame_x(), (screen_height/2.-mouse.y)-sprite._pygame_y()):
+            if sprite._secondary_pygame_surface.get_rect().collidepoint((mouse.x+screen.width/2.)-sprite._pygame_x(), (screen.height/2.-mouse.y)-sprite._pygame_y()):
                 sprite._is_clicked = True
 
                 # only run sprite clicks on the frame the mouse was clicked
