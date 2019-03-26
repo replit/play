@@ -49,10 +49,11 @@ Or you can just go to [repl.it](https://repl.it/@glench/Replit-Play) and you won
 All Python Play programs start with `import play` and end with `play.start_program()`, like this:
 
 ```python
-import play
+import play # this is the first line in the program
 
 
-play.start_program()
+
+play.start_program() # this is the last line in the program
 ```
 
 All other commands go between those two commands.

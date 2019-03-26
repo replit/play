@@ -9,8 +9,8 @@ warnings.formatwarning = warning_format
 import pygame
 
 import asyncio
-import random
-import math
+import random as _random
+import math as _math
 
 from .keypress import pygame_key_to_name as _pygame_key_to_name # don't pollute user-facing namespace with library internals
 from .color import color_name_to_rgb as _color_name_to_rgb
@@ -72,10 +72,10 @@ def debug(on_or_off):
 def random_number(lowest=0, highest=100):
     # if user supplies whole numbers, return whole numbers
     if type(lowest) == int and type(highest) == int:
-        return random.randint(lowest, highest)
+        return _random.randint(lowest, highest)
     else:
         # if user supplied any floats, return decimals
-        return round(random.uniform(lowest, highest), 2)
+        return round(_random.uniform(lowest, highest), 2)
 
 def random_color():
     return (random_number(0, 255), random_number(0, 255), random_number(0, 255))
@@ -213,7 +213,7 @@ You might want to look in your code where you're setting transparency and make s
             x, y = x.x, x.y
         except AttributeError:
             x, y = x, y
-        self.angle = math.degrees(math.atan2(y-self.y, x-self.x))
+        self.angle = _math.degrees(_math.atan2(y-self.y, x-self.x))
 
 
     def go_to(self, x=None, y=None):
@@ -251,7 +251,7 @@ You might want to look in your code where you're setting transparency and make s
         dx = self.x - x
         dy = self.y - y
 
-        return math.sqrt(dx**2 + dy**2)
+        return _math.sqrt(dx**2 + dy**2)
 
 
 
@@ -349,7 +349,6 @@ class box(sprite):
 
         if self._border_width and self._border_color:
             # draw border rectangle
-            # pygame.draw.rect(self._primary_pygame_surface, _color_name_to_rgb(self._border_color), (0,0,self._width,self._height))
             self._primary_pygame_surface.fill(_color_name_to_rgb(self._border_color))
             # draw fill rectangle over border rectangle at the proper position
             pygame.draw.rect(self._primary_pygame_surface, _color_name_to_rgb(self._color), (self._border_width,self._border_width,self._width-2*self._border_width,self._height-2*self.border_width))
