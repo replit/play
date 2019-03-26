@@ -1,6 +1,6 @@
 # Python Play (beta)
 
-[![Try on repl.it](https://repl-badge.jajoosam.repl.co/try.png)](https://repl.it/@glench/Replit-Play)
+[![Try on repl.it](https://repl-badge.jajoosam.repl.co/try.png)](https://repl.it/@glench/Python-Play-sample-game)
 
 ## The easiest way to start coding games and graphics projects in Python
 
@@ -37,7 +37,7 @@ The code above makes a game where you have to click the cat to win:
 
 ![Clicking a cat game](example.gif)
 
-**[You can try playing and changing this game on repl.it!](https://repl.it/@glench/Replit-Play)**
+**[You can try playing and changing this game on repl.it!](https://repl.it/@glench/Python-Play-sample-game)**
 
 # How to install Python Play
 
@@ -45,7 +45,7 @@ Run the following command in your terminal:
 
     pip install replit-play
 
-Or you can just go to [repl.it](https://repl.it/@glench/Replit-Play) and you won't have to install anything :)
+Or you can just go to [repl.it](https://repl.it/@glench/Python-Play-sample-game) and you won't have to install anything :)
 
 # How to use Python Play
 
