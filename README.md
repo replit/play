@@ -1,4 +1,7 @@
 # Python Play (beta)
+
+[![Try on repl.it](https://repl-badge.jajoosam.repl.co/try.png)](https://repl.it/@glench/Replit-Play)
+
 ## The easiest way to start coding games and graphics projects in Python
 
 Python Play is an open-source code library for the Python programming language that makes it as easy as possible to start making games. Here's the code to make a simple game using Play:
