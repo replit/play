@@ -1,9 +1,9 @@
 import sys
 import os
-import warnings
+import warnings as _warnings
 def warning_format(message, category, filename, lineno, file=None, line=None):
     return f'\n{category.__name__}... {message}\n'
-warnings.formatwarning = warning_format
+_warnings.formatwarning = warning_format
 
 
 import pygame
@@ -162,7 +162,7 @@ class sprite(object):
 Try looking in your code for where you're setting transparency for {self._image} and change it a number.
 """)
         if alpha > 100 or alpha < 0:
-            warnings.warn(f"""The transparency setting for {self} is being set to {alpha} and it should be between 0 and 100.
+            _warnings.warn(f"""The transparency setting for {self} is being set to {alpha} and it should be between 0 and 100.
 You might want to look in your code where you're setting transparency and make sure it's between 0 and 100.  """, Hmm)
 
 
@@ -442,7 +442,7 @@ class text(sprite):
         try:
             self._pygame_font = pygame.font.Font(self._font, self._font_size)
         except:
-            warnings.warn(f"""We couldn't find the font file '{self._font}'. We'll use the default font instead for now.
+            _warnings.warn(f"""We couldn't find the font file '{self._font}'. We'll use the default font instead for now.
 To fix this, either set the font to None, or make sure you have a font file (usually called something like Arial.ttf) in your project folder.\n""", Hmm)
             self._pygame_font = pygame.font.Font(None, self._font_size)
 
@@ -576,7 +576,7 @@ def key_is_pressed(*keys):
     return False
 
 _loop = asyncio.get_event_loop()
-_loop.set_debug(True)
+_loop.set_debug(False)
 
 _keys_pressed_this_frame = []
 _keys_to_skip = [pygame.K_MODE]
@@ -743,7 +743,9 @@ def start_program():
     try:
         _loop.run_forever()
     finally:
-        _loop.close()
+        with _warnings.catch_warnings():
+            _warnings.simplefilter("ignore")
+            _loop.close()
 
 
 """
