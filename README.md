@@ -65,7 +65,17 @@ To try any of the following examples, go to **[repl.it and try pasting code in](
 
 ## Basic Commands
 
-To get images or text on the screen, use `play.new_sprite()` and `play.new_text()`. (Copy and paste the code below to try it out.)
+To get images or text on the screen, use `play.new_box()`, `play.new_sprite()` and `play.new_text()`. (Copy and paste the code below to try it out.)
+
+#### `play.new_box()`
+```python
+box = play.new_box(color='black', x=0, y=0, width=100, height=200, border_color="light blue", border_width=0)
+```
+
+This will put a tall, black box in the middle of the screen.
+
+If you want to change where the image is on the screen, try changing `x=0` (horizontal position) and `y=0` (vertical position). Positive x is to the right and positive y is up. You can also change the color by changing `'black'` to another color name, like `'orange'`.
+
 
 #### `play.new_sprite()`
 ```python
@@ -74,14 +84,6 @@ character = play.new_sprite(image='character.png', x=0, y=0, angle=0, size=100, 
 
 This will place an image in the middle of the screen. Make sure you have a file named `character.png` in your project files for the code above to work.
 
-If you want to change where the image is on the screen, try changing `x=0` (horizontal position) and `y=0` (vertical position). Positive x is to the right and positive y is up.
-
-#### `play.new_box()`
-```python
-box = play.new_box(color='black', x=0, y=0, width=100, height=200, border_color="light blue", border_width=0)
-```
-
-This will put a tall, black box in the middle of the screen.
 
 
 #### `play.new_text()`
