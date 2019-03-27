@@ -12,7 +12,7 @@ import play
 cat = play.new_text('=^.^=', font_size=70)
 
 @play.repeat_forever
-async def do():
+async def toggle_cat():
     cat.x = play.random_number(-200, 200)
     cat.y = play.random_number(-200, 200)
     cat.color = play.random_color()
@@ -26,7 +26,7 @@ async def do():
     await play.timer(seconds=0.4)
 
 @cat.when_clicked
-async def do():
+async def win_function():
     cat.show()
     cat.words = 'You won!'
 
@@ -512,7 +512,7 @@ import play
 cat = play.new_text('=^.^=')
 
 @play.repeat_forever
-async def do():
+async def change_bg():
     play.set_background_color('pink')
     await play.timer(seconds=1)
 
