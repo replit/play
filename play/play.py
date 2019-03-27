@@ -1,5 +1,4 @@
-import sys
-import os
+import os as _os
 import warnings as _warnings
 def warning_format(message, category, filename, lineno, file=None, line=None):
     return f'\n{category.__name__}... {message}\n'
@@ -8,7 +7,7 @@ _warnings.formatwarning = warning_format
 
 import pygame
 
-import asyncio
+import asyncio as _asyncio
 import random as _random
 import math as _math
 
@@ -103,7 +102,7 @@ class sprite(object):
         all_sprites.append(self)
 
     def _compute_primary_surface(self):
-        self._primary_pygame_surface = pygame.image.load(os.path.join(self._image))
+        self._primary_pygame_surface = pygame.image.load(_os.path.join(self._image))
         self._primary_pygame_surface.set_colorkey((255,255,255, 255)) # set background to transparent
 
         self._should_recompute_primary_surface = False
@@ -575,7 +574,7 @@ def key_is_pressed(*keys):
             return True
     return False
 
-_loop = asyncio.get_event_loop()
+_loop = _asyncio.get_event_loop()
 _loop.set_debug(False)
 
 _keys_pressed_this_frame = []
@@ -700,11 +699,11 @@ def _game_loop():
 
 
 async def timer(seconds=1.0):
-    await asyncio.sleep(seconds)
+    await _asyncio.sleep(seconds)
     return True
 
 async def animate():
-    await asyncio.sleep(0)
+    await _asyncio.sleep(0)
 
 _repeat_forever_callbacks = []
 def repeat_forever(func):
