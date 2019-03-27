@@ -579,10 +579,13 @@ _loop.set_debug(False)
 
 _keys_pressed_this_frame = []
 _keys_to_skip = [pygame.K_MODE]
+pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION])
+_clock = pygame.time.Clock()
 def _game_loop():
     _keys_pressed_this_frame.clear() # do this instead of `_keys_pressed_this_frame = []` to save a tiny bit of memory
     click_happened_this_frame = False
 
+    _clock.tick(60)
     for event in pygame.event.get():
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_q and (pygame.key.get_mods() & pygame.KMOD_META or pygame.key.get_mods() & pygame.KMOD_CTRL)):
             # quitting by clicking window's close button or pressing ctrl+q / command+q
