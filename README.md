@@ -218,6 +218,12 @@ Sprites also have properties that can be changed to change how the sprite looks.
 - **`sprite.angle`** — How much the sprite is turned. Positive numbers are counter-clockwise. The default is 0 degrees (pointed to the right).
 - **`sprite.transparency`** — How see-through the sprite is from 0 to 100. 0 is completely see-through, 100 is not see-through at all. The default is 100.
 
+Box-sprite specific properties:
+- **`box.color`** — The color filling the box. The default is `black`.
+- **`box.border_width`** — The width of the box's border, the line around it. The default is `0`.
+- **`box.border_color`** — The color of the box's border. The default is `light blue`.
+
+
 Image-sprite specific properties:
 
 - **`sprite.image`** — The filename of the image that will be shown.

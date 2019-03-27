@@ -323,7 +323,7 @@ def new_box(color='black', x=0, y=0, width=100, height=200, border_color='light 
     return box(color=color, x=x, y=y, width=width, height=height, border_color=border_color, border_width=border_width)
 
 class box(sprite):
-    def __init__(self, color='black', x=0, y=0, width=100, height=200, border_color='black', border_width=0, transparency=100, size=100, angle=0):
+    def __init__(self, color='black', x=0, y=0, width=100, height=200, border_color='light blue', border_width=0, transparency=100, size=100, angle=0):
         self.x = x
         self.y = y
         self._width = width
