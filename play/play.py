@@ -52,7 +52,7 @@ def _clamp(num, min_, max_):
 class Oops(Exception):
     def __init__(self, message):
         # for readability, always prepend exception messages in the library with two blank lines
-        message = '\n\n'+message
+        message = '\n\n\t'+message.replace('\n', '\n\t')
         super(Oops, self).__init__(message)
 
 class Hmm(UserWarning):
@@ -81,6 +81,14 @@ def random_color():
 
 def new_sprite(image='cat.png', x=0, y=0, size=100, angle=0, transparency=100):
     return sprite(image=image, x=x, y=y, size=size, angle=angle, transparency=transparency)
+
+def _make_async(func):
+    if _asyncio.iscoroutinefunction(func):
+        # if it's already async just return it
+        return func
+    async def async_func(*args, **kwargs):
+        func(*args, **kwargs)
+    return async_func
 
 class sprite(object):
     def __init__(self, image='cat.png', x=0, y=0, size=100, angle=0, transparency=100):
@@ -284,7 +292,9 @@ You might want to look in your code where you're setting transparency and make s
     def _pygame_y(self):
         return (screen.height/2.) - self.y - (self._secondary_pygame_surface.get_height()/2.)
 
-    def when_clicked(self, async_callback, call_with_sprite=False):
+    # @decorator
+    def when_clicked(self, callback, call_with_sprite=False):
+        async_callback = _make_async(callback)
         async def wrapper():
             wrapper.is_running = True
             if call_with_sprite:
@@ -307,7 +317,9 @@ class _mouse(object):
     def is_clicked(self):
         return self._is_clicked
 
-    def when_clicked(self, async_callback):
+    # @decorator
+    def when_clicked(self, func):
+        async_callback = _make_async(func)
         async def wrapper():
             wrapper.is_running = True
             await async_callback()
@@ -315,6 +327,22 @@ class _mouse(object):
         wrapper.is_running = False
         self._when_clicked_callbacks.append(wrapper)
         return wrapper
+
+    def distance_to(self, x=None, y=None):
+        assert(not x is None)
+
+        try:
+            # x can either by a number or a sprite. If it's a sprite:
+            x = x.x
+            y = x.y
+        except AttributeError:
+            x = sprite_or_x
+            y = y
+
+        dx = self.x - x
+        dy = self.y - y
+
+        return _math.sqrt(dx**2 + dy**2)
 
 mouse = _mouse()
 
@@ -588,6 +616,7 @@ def set_background_color(color):
     else:
         background_color = _color_name_to_rgb(color)
 
+# @decorator
 def when_sprite_clicked(*sprites):
     def wrapper(func):
         for sprite in sprites:
@@ -605,6 +634,7 @@ pygame.key.set_repeat(200, 16)
 _pressed_keys = {}
 _keypress_callbacks = []
 
+# @decorator
 def when_any_key_pressed(func):
     if not callable(func):
         raise Oops("""@play.when_any_key_pressed doesn't use a list of keys. Try just this instead:
@@ -613,21 +643,23 @@ def when_any_key_pressed(func):
 async def do(key):
     print("This key was pressed!", key)
 """)
-
+    async_callback = _make_async(func)
     async def wrapper(*args, **kwargs):
         wrapper.is_running = True
-        await func(*args, **kwargs)
+        await async_callback(*args, **kwargs)
         wrapper.is_running = False
     wrapper.keys = None
     wrapper.is_running = False
     _keypress_callbacks.append(wrapper)
     return wrapper
 
+# @decorator
 def when_key_pressed(*keys):
     def decorator(func):
+        async_callback = _make_async(func)
         async def wrapper(*args, **kwargs):
             wrapper.is_running = True
-            await func(*args, **kwargs)
+            await async_callback(*args, **kwargs)
             wrapper.is_running = False
         wrapper.keys = keys
         wrapper.is_running = False
@@ -791,6 +823,7 @@ async def animate():
     await _asyncio.sleep(0)
 
 _repeat_forever_callbacks = []
+# @decorator
 def repeat_forever(func):
     """
     Calls the given function repeatedly.
@@ -804,9 +837,10 @@ def repeat_forever(func):
             text.turn(degrees=15)
 
     """
+    async_callback = _make_async(func)
     async def repeat_wrapper():
         repeat_wrapper.is_running = True
-        await func()
+        await async_callback()
         repeat_wrapper.is_running = False
 
     repeat_wrapper.is_running = False
@@ -815,9 +849,11 @@ def repeat_forever(func):
 
 
 _when_program_starts_callbacks = []
+# @decorator
 def when_program_starts(func):
+    async_callback = _make_async(func)
     async def wrapper(*args, **kwargs):
-        return await func(*args, **kwargs)
+        return await async_callback(*args, **kwargs)
     _when_program_starts_callbacks.append(wrapper)
     return func
 
