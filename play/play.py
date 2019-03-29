@@ -1,4 +1,5 @@
 import os as _os
+import logging as _logging
 import warnings as _warnings
 def warning_format(message, category, filename, lineno, file=None, line=None):
     return f'\n{category.__name__}... {message}\n'
@@ -703,10 +704,7 @@ def _game_loop():
     for event in pygame.event.get():
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_q and (pygame.key.get_mods() & pygame.KMOD_META or pygame.key.get_mods() & pygame.KMOD_CTRL)):
             # quitting by clicking window's close button or pressing ctrl+q / command+q
-            pygame.quit()
-            with _warnings.catch_warnings(): # without this, a bunch of cancelled task messages come up when quitting
-                _warnings.simplefilter("ignore")
-                _loop.stop()
+            _loop.stop()
             return False
         if event.type == pygame.MOUSEBUTTONDOWN:
             click_happened_this_frame = True
@@ -868,9 +866,9 @@ def start_program():
     try:
         _loop.run_forever()
     finally:
-        with _warnings.catch_warnings(): # without this, a bunch of cancelled task messages come up when quitting
-            _warnings.simplefilter("ignore")
-            _loop.close()
+        _logging.getLogger("asyncio").setLevel(_logging.CRITICAL)
+        pygame.quit()
+
 
 
 """
