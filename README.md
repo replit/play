@@ -65,7 +65,7 @@ To try any of the following examples, go to **[repl.it and try pasting code in](
 
 ## Basic Commands
 
-To get images or text on the screen, use `play.new_box()`, `play.new_sprite()` and `play.new_text()`. (Copy and paste the code below to try it out.)
+To get images or text on the screen, use the following commands. (Copy and paste the code below to try it out.)
 
 #### `play.new_box()`
 ```python
@@ -94,6 +94,15 @@ greeting = play.new_text(words='hey there', x=50, y=0, angle=0, font=None, font_
 This will put some text on the screen.
 
 If you want to change the font, you'll need a font file (usually named something like `Arial.ttf`) in your project files. Then you can change `font=None` to `font='Arial.ttf'`.
+
+
+
+#### `play.new_circle()`
+```python
+new_circle = play.new_circle(color='black', x=0, y=0, radius=100, border_color="light blue", border_width=0)
+```
+
+This will put a black circle in the middle of the screen.
 
 
 
@@ -220,12 +229,6 @@ Sprites also have properties that can be changed to change how the sprite looks.
 - **`sprite.angle`** — How much the sprite is turned. Positive numbers are counter-clockwise. The default is 0 degrees (pointed to the right).
 - **`sprite.transparency`** — How see-through the sprite is from 0 to 100. 0 is completely see-through, 100 is not see-through at all. The default is 100.
 
-Box-sprite-only properties:
-- **`box.color`** — The color filling the box. The default is `black`.
-- **`box.border_width`** — The width of the box's border, the line around it. The default is `0`.
-- **`box.border_color`** — The color of the box's border. The default is `light blue`.
-
-
 Image-sprite-only properties:
 
 - **`sprite.image`** — The filename of the image that will be shown.
@@ -236,6 +239,25 @@ Text-sprite-only properties:
 - **`text.font`** — The filename of the font e.g. 'Arial.ttf'. The default is `None`, which will use a built-in font.
 - **`text.font_size`** — The text's size. The default is `50` (pt).
 - **`text.color`** — The text's color. The default is black.
+
+Box-sprite-only properties:
+- **`box.color`** — The color filling the box. The default is `black`.
+- **`box.width`** — The width of the box. The default is `100` pixels.
+- **`box.height`** — The height of the box. The default is `200` pixels.
+- **`box.border_width`** — The width of the box's border, the line around it. The default is `0`.
+- **`box.border_color`** — The color of the box's border. The default is `'light blue'`.
+
+If the box has a border, the box's total width, including the border, will be the width defined by the `width` property.
+
+Circle-sprite-only properties:
+- **`circle.color`** — The color filling the circle. The default is `black`.
+- **`circle.radius`** — How big the circle is, measured from the middle to the outside. The default is `100` pixels, making a 200-pixel-wide circle.
+- **`circle.border_width`** — The width of the circle's border, the line around it. The default is `0`.
+- **`circle.border_color`** — The color of the circle's border. The default is `'light blue'`.
+
+If the circle has a border, the circle's total width, including the border, will be the width defined by the `radius` property.
+
+
 
 These properties can changed to do the same things as the sprite commands above. For example,
 
@@ -533,4 +555,4 @@ play.start_program()
 
 Both of the `@play.repeat_forever` functions will run seemingly at the same time, which makes the code look a lot simpler for new programmers.
 
-Although it's annoying to have to type `async` before procedure definitions, we think the trade-off is worth it. Plus, we'd hope your IDE would be good enough so that brand new programmers don't have to type this stuff.
+Although it's annoying to have to type `async` before procedure definitions and it may acustom learners to non-typical code, we think the trade-off is worth it. Plus, we'd hope your IDE would be good enough so that brand new programmers don't have to type this stuff.
