@@ -528,13 +528,14 @@ async def do():
 
 Yes, this is Python! Python added `async` and `await` as special keywords in Python 3.7. It's part of the [asyncio module](https://docs.python.org/3/library/asyncio.html).
 
-What that means for this library is that we can use async functions to help us run animations. For example,
+Using async functions means we can use the `await play.timer()` and `await play.animate()` functions, which makes some code a lot simpler and appear to run in-parallel, which new programmers find intuitive.
 
 ```python
 import play
 
 cat = play.new_text('=^.^=')
 
+# this code block uses async so it can use the 'await play.timer()' function
 @play.repeat_forever
 async def change_bg():
     play.set_background_color('pink')
@@ -546,13 +547,24 @@ async def change_bg():
     play.set_background_color('light blue')
     await play.timer(seconds=1)
 
+# this code block doesn't need async because it doesn't have `await play.timer()` or `await play.animate()`
 @play.repeat_forever
-async def do():
+def do():
     cat.turn(1)
 
 play.start_program()
 ```
 
-Both of the `@play.repeat_forever` functions will run seemingly at the same time, which makes the code look a lot simpler for new programmers.
+In the above program, the background will change and the cat will appear to turn at the same time even though the code is running single-threaded.
 
-Although it's annoying to have to type `async` before procedure definitions and it may acustom learners to non-typical ways of making functions, we think the trade-off is worth it. Plus, we'd hope your IDE would be good enough so that brand new programmers don't have to type this stuff.
+The `async` keyword isn't necessary to write unless you want to use `await` functions. If you try to use an `await` command inside a non-async function, Python will show you an error like this:
+
+```  
+  File "example.py", line 31
+    await play.timer(seconds=1)
+    ^
+SyntaxError: 'await' outside async function
+```
+To fix that error, just put `async` before `def`.
+
+If you don't understand any of this, it's generally safe to just include `async` before `def`.
