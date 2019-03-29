@@ -475,7 +475,7 @@ play.random_number(lowest=0, highest=100)
 
 # example return value: 42
 ```
-(You can also do `play.random_number(0, 100)`.)
+(You can also do `play.random_number(0, 100)` without `lowest` and `highest`.)
 
 If non-whole numbers are given, non-whole numbers are given back:
 
@@ -555,4 +555,4 @@ play.start_program()
 
 Both of the `@play.repeat_forever` functions will run seemingly at the same time, which makes the code look a lot simpler for new programmers.
 
-Although it's annoying to have to type `async` before procedure definitions and it may acustom learners to non-typical code, we think the trade-off is worth it. Plus, we'd hope your IDE would be good enough so that brand new programmers don't have to type this stuff.
+Although it's annoying to have to type `async` before procedure definitions and it may acustom learners to non-typical ways of making functions, we think the trade-off is worth it. Plus, we'd hope your IDE would be good enough so that brand new programmers don't have to type this stuff.
