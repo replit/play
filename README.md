@@ -112,6 +112,8 @@ play.set_background_color( (255, 255, 255) )
 # each number can go from 0 to 255
 ```
 
+Anywhere you can set a color in Python Play, you can do it using a named color like `'red'` or an RGB value above like `(255, 255, 255)` or even an RGBA value like `(0, 0, 0, 127)` (the fourth number is transparency from 0 to 255).
+
 
 
 
