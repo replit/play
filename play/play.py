@@ -53,7 +53,7 @@ def _clamp(num, min_, max_):
 class Oops(Exception):
     def __init__(self, message):
         # for readability, always prepend exception messages in the library with two blank lines
-        message = '\n\n\t'+message.replace('\n', '\n\t')
+        message = '\n\n\tOops!\n\n\t'+message.replace('\n', '\n\t')
         super(Oops, self).__init__(message)
 
 class Hmm(UserWarning):
@@ -83,10 +83,23 @@ def random_color():
 def new_sprite(image='cat.png', x=0, y=0, size=100, angle=0, transparency=100):
     return sprite(image=image, x=x, y=y, size=size, angle=angle, transparency=transparency)
 
+def _raise_on_await_warning(func):
+    async def f(*args, **kwargs):
+        with _warnings.catch_warnings(record=True) as w:
+            await func(*args, **kwargs)
+            for warning in w:
+                str_message = warning.message.args[0] # e.g. "coroutine 'timer' was never awaited"
+                if 'was never awaited' in str_message:
+                    unawaited_function_name = str_message.split("'")[1]
+                    raise Oops(f"""Looks like you forgot to put "await" before play.{unawaited_function_name} on line {warning.lineno} of file {warning.filename}.
+To fix this, just add the word 'await' before play.{unawaited_function_name} on line {warning.lineno} of file {warning.filename} in the function {func.__name__}.""")
+    return f
+
 def _make_async(func):
     if _asyncio.iscoroutinefunction(func):
         # if it's already async just return it
-        return func
+        return _raise_on_await_warning(func)
+    @_raise_on_await_warning
     async def async_func(*args, **kwargs):
         func(*args, **kwargs)
     return async_func
@@ -443,6 +456,8 @@ class box(sprite):
 def new_circle(color='black', x=0, y=0, radius=100, border_color='light blue', border_width=0, transparency=100, size=100, angle=0):
     return circle(color=color, x=x, y=y, radius=radius, border_color=border_color, border_width=border_width,
         transparency=transparency, size=size, angle=angle)
+
+
 
 class circle(sprite):
     def __init__(self, color='black', x=0, y=0, radius=100, border_color='light blue', border_width=0, transparency=100, size=100, angle=0):
