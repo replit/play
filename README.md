@@ -12,7 +12,7 @@ import play
 cat = play.new_text('=^.^=', font_size=70)
 
 @play.repeat_forever
-async def toggle_cat():
+async def move_cat():
     cat.x = play.random_number(-200, 200)
     cat.y = play.random_number(-200, 200)
     cat.color = play.random_color()
@@ -26,7 +26,7 @@ async def toggle_cat():
     await play.timer(seconds=0.4)
 
 @cat.when_clicked
-async def win_function():
+def win_function():
     cat.show()
     cat.words = 'You won!'
 
@@ -135,7 +135,7 @@ To make things move around, you can start by using `@play.repeat_forever`, like 
 cat = play.new_text('=^.^=')
 
 @play.repeat_forever
-async def do():
+def do():
 
     cat.turn(10)  
 ```    
@@ -150,7 +150,7 @@ To make some code run just at the beginning of your project, use `@play.when_pro
 cat = play.new_text('=^.^=')
 
 @play.when_program_starts
-async def do():
+def do():
 
     cat.turn(180)  
 ```
@@ -197,6 +197,8 @@ To break down the code:
 - `for count in play.repeat(180):` runs the code 180 times.
 - `cat.turn(1)` turns that cat 1 degree each time.
 - `await play.animate()` makes the cat animate smoothly. Without this command, the cat would just turn upside down instantly.
+
+Note: to use `await play.animate()` and `await play.timer()`, the word `async` must be included before `def` in you function definition.
 
 
 
@@ -276,7 +278,7 @@ You can change the properties to animate the sprites. The code below makes the c
 cat = play.new_text('=^.^=')
 
 @play.repeat_forever
-async def do():
+def do():
     cat.angle += 1
     # the line above is the same as cat.turn(1)
 ```
@@ -313,7 +315,7 @@ Working with the mouse in Python Play is easy. Here's a simple program that poin
 arrow = play.new_text('-->', font_size=100)
 
 @play.repeat_forever
-async def do():
+def do():
     arrow.point_towards(play.mouse)
 ```
 
@@ -374,7 +376,7 @@ In the code below, when a click is detected, the text will move to the click loc
 text = play.new_text('0, 0')
 
 @play.mouse.when_clicked
-async def do():
+def do():
     text.words = f'{play.mouse.x}, {play.mouse.y}'
     text.go_to(play.mouse)
 ```
@@ -396,7 +398,7 @@ In the code below, pressing the `space` key will change the cat's face, and pres
 cat = play.new_text('=^.^=')
 
 @play.when_key_pressed('space', 'enter') # if either the space key or enter key are pressed...
-async def do(key):
+def do(key):
     if key == 'enter':
         cat.words = '=-.-='
     if key == 'space':
@@ -414,7 +416,7 @@ In the code below, pressing the arrow keys or w/a/s/d will make the cat go in th
 cat = play.new_text('=^.^=')
 
 @play.repeat_forever
-async def do():
+def do():
     if play.key_is_pressed('up', 'w'):
         cat.y += 15
     if play.key_is_pressed('down', 's'):
@@ -437,7 +439,7 @@ In the code below, any key you press will be displayed on the screen:
 text = play.new_text('')
 
 @play.repeat_forever
-async def do(key):
+def do(key):
     text.words = f'{key} pressed!'
 ```
 
