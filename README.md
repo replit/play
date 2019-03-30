@@ -198,7 +198,7 @@ To break down the code:
 - `cat.turn(1)` turns that cat 1 degree each time.
 - `await play.animate()` makes the cat animate smoothly. Without this command, the cat would just turn upside down instantly.
 
-Note: to use `await play.animate()` and `await play.timer()`, the word `async` must be included before `def` in you function definition.
+Note: to use `await play.animate()` and `await play.timer()`, the word `async` must be included before `def` in your function definition.
 
 
 
