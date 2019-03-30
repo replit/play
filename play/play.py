@@ -84,6 +84,10 @@ def new_sprite(image='cat.png', x=0, y=0, size=100, angle=0, transparency=100):
     return sprite(image=image, x=x, y=y, size=size, angle=angle, transparency=transparency)
 
 def _raise_on_await_warning(func):
+    """
+    If someone doesn't put 'await' before functions that require 'await'
+    like play.timer() or play.animate(), raise an exception.
+    """
     async def f(*args, **kwargs):
         with _warnings.catch_warnings(record=True) as w:
             await func(*args, **kwargs)
@@ -96,12 +100,16 @@ To fix this, just add the word 'await' before play.{unawaited_function_name} on 
     return f
 
 def _make_async(func):
+    """
+    Turn a non-async function into an async function. 
+    Used mainly in decorators like @repeat_forever.
+    """
     if _asyncio.iscoroutinefunction(func):
         # if it's already async just return it
         return _raise_on_await_warning(func)
     @_raise_on_await_warning
     async def async_func(*args, **kwargs):
-        func(*args, **kwargs)
+        return func(*args, **kwargs)
     return async_func
 
 class sprite(object):
@@ -640,12 +648,6 @@ def when_sprite_clicked(*sprites):
         return func
     return wrapper
 
-def sprite_is_clicked(*sprites):
-    return any(sprite.is_clicked() for sprite in sprites)
-
-def when_mouse_clicked(func):
-    mouse.when_clicked(func)
-
 pygame.key.set_repeat(200, 16)
 _pressed_keys = {}
 _keypress_callbacks = []
@@ -889,7 +891,7 @@ def start_program():
 """
 cool stuff to add:
     scene class, hide and show scenes in one go (collection of sprites)
-    mouse down
+    mouse up
     mouse move
     mouse hover
     mouse hold
@@ -926,10 +928,7 @@ cool stuff to add:
 
 
 
-[x] how to change background color once every half second?
-[x] how to do a series of actions 10 times only? (can't use forever loop. in scratch this would be when (flag) clicked, loop 10 times)
 [ ] how to make a text input box simply?
-[ ] how to make pong?
 [ ] how to make paint app?
 [ ] how to make midi keyboard app?
 [ ] how to make click and drag boxes?

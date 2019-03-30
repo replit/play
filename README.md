@@ -121,7 +121,7 @@ play.set_background_color( (255, 255, 255) )
 # each number can go from 0 to 255
 ```
 
-Anywhere you can set a color in Python Play, you can do it using a named color like `'red'` or an RGB value above like `(255, 255, 255)` or even an RGBA value like `(0, 0, 0, 127)` (the fourth number is transparency from 0 to 255).
+Anywhere you can set a color in Python Play, you can do it using a named color like `'red'` or an RGB value above like `(255, 255, 255)` or even an RGBA value like `(0, 0, 0, 127)` (the fourth number is transparency from 0 to 255). You can get the current background color with `play.background_color`.
 
 
 
@@ -362,8 +362,7 @@ async def do(sprite):
     sprite.words = starting_words
 ```
 
-In the above program, clicking `face1` or `face2` will run the code for each sprite.
-
+In the above program, clicking `face1` or `face2` will run the code for each sprite separately. Note that the function is defined with a parameter e.g. `do(sprite)`.
 
 
 #### `@play.mouse.when_clicked`
