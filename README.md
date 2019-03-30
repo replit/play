@@ -569,3 +569,31 @@ SyntaxError: 'await' outside async function
 To fix that error, just put `async` before `def`.
 
 If you don't understand any of this, it's generally safe to just include `async` before `def`.
+
+## Why use Python Play?
+
+Python Play was designed to be an excellent starting point for brand new programmers. The goal of the project is to give someone that has never programmed before a compelling and succesful experience in their first few minutes of programming. We aimed to make graphics programming as accessible as possible to as young an audience as possible.
+
+We found that many existing programming languages and graphics libraries presented unecessary difficulties for new programmers — difficulties making simple things happen, confusing language, confusing program flow, unexplained concepts, etc. We know that even with one disagreeable initial experience people can be turned away from programming forever, and we wanted to prevent that outcome as much as possible.
+
+Python Play was inspired by [MIT's Scratch](https://scratch.mit.edu), which has introduced millions of children and adults to programming and helped them to create and share personally meaningful computational projects. In fact, Python Play's main designer worked on Scratch professionally for a brief period. But we found that for some learners, Scratch — with its graphical blocks and colorful interface — didn't feel like "real programming". For those learners wishing to use a mainstream textual programming language while also removing the unnecessary difficulties of graphics programming in these languags, we made Python Play.
+
+
+Python Play was designed with the following principles in mind:
+
+- No boilerplate - every line of code should do something meaningful and understandable.
+
+- As much as possible, commands should have immediate visual effects. For example, if a programmer types a `new_sprite` command, they shouldn't have to enter a separate `draw` command that makes the sprite show up on the screen.
+
+- Lines of code should be easily copy and pasted.
+
+- Command values should have descriptive labels that make it as clear as possible what the value means.
+
+- Use plain English as much as possible. For mathematical concepts, try to use language programmers might see in math classes. Try to use short names that are easier for younger people to type. Many of the commands and names were borrowed from Scratch, whose designers have spent decades see what language children can understand.
+
+
+Python Play was also designed with a custom Repl.it IDE in mind (coming soon), one that significantly lowers the usability problems of programming (installing the language, using a text editor, using the terminal, running programs, showing which commands are available, etc).
+
+While the learning curve for Python and Python Play are far from ideal for new programmers, we still think Python Play provides a great way for new programmers to start programming with graphics.
+
+<3
