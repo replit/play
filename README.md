@@ -374,7 +374,7 @@ async def do(sprite):
     sprite.words = starting_words
 ```
 
-In the above program, clicking `face1` or `face2` will run the code for each sprite separately. Note that the function is defined with a parameter e.g. `do(sprite)`.
+In the above program, clicking `face1` or `face2` will run the code for each sprite separately. Note that the function is defined with a parameter e.g. `def do(sprite):` instead of just `def do():`.
 
 
 #### `@play.mouse.when_clicked`
@@ -391,6 +391,31 @@ def do():
     text.words = f'{play.mouse.x}, {play.mouse.y}'
     text.go_to(play.mouse)
 ```
+
+#### `@play.mouse.when_click_released`
+
+To run code when the mouse button is released, use `@play.mouse.when_click_released`.
+
+In the code below, the cat can be dragged around when it's clicked by the mouse:
+
+```python
+cat = play.new_text('=^.^= drag me!')
+cat.is_being_dragged = False
+
+@cat.when_clicked
+def do():
+    cat.is_being_dragged = True
+
+@play.mouse.when_click_released
+def do():
+    cat.is_being_dragged = False
+
+@play.repeat_forever
+def do():
+    if cat.is_being_dragged:
+        cat.go_to(play.mouse)
+```
+
 
 
 

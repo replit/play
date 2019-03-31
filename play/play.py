@@ -335,6 +335,7 @@ class _mouse(object):
         self.y = 0
         self._is_clicked = False
         self._when_clicked_callbacks = []
+        self._when_click_released_callbacks = []
 
     def is_clicked(self):
         return self._is_clicked
@@ -348,6 +349,17 @@ class _mouse(object):
             wrapper.is_running = False
         wrapper.is_running = False
         self._when_clicked_callbacks.append(wrapper)
+        return wrapper
+
+    # @decorator
+    def when_click_released(self, func):
+        async_callback = _make_async(func)
+        async def wrapper():
+            wrapper.is_running = True
+            await async_callback()
+            wrapper.is_running = False
+        wrapper.is_running = False
+        self._when_click_released_callbacks.append(wrapper)
         return wrapper
 
     def distance_to(self, x=None, y=None):
@@ -716,6 +728,7 @@ _clock = pygame.time.Clock()
 def _game_loop():
     _keys_pressed_this_frame.clear() # do this instead of `_keys_pressed_this_frame = []` to save a tiny bit of memory
     click_happened_this_frame = False
+    click_release_happened_this_frame = False
 
     _clock.tick(60)
     for event in pygame.event.get():
@@ -727,6 +740,7 @@ def _game_loop():
             click_happened_this_frame = True
             mouse._is_clicked = True
         if event.type == pygame.MOUSEBUTTONUP:
+            click_release_happened_this_frame = True
             mouse._is_clicked = False
         if event.type == pygame.MOUSEMOTION:
             mouse.x, mouse.y = (event.pos[0] - screen.width/2.), (screen.height/2. - event.pos[1])
@@ -756,6 +770,14 @@ def _game_loop():
     ####################################
     if click_happened_this_frame and mouse._when_clicked_callbacks:
         for callback in mouse._when_clicked_callbacks:
+            if not callback.is_running:
+                _loop.create_task(callback())
+
+    ####################################
+    # @mouse.when_click_released callbacks
+    ####################################
+    if click_release_happened_this_frame and mouse._when_click_released_callbacks:
+        for callback in mouse._when_click_released_callbacks:
             if not callback.is_running:
                 _loop.create_task(callback())
 
