@@ -242,10 +242,16 @@ Sprites also have properties that can be changed to change how the sprite looks.
 - **`sprite.size`** — How big the sprite is. The default is 100, but it can be made bigger or smaller.
 - **`sprite.angle`** — How much the sprite is turned. Positive numbers are counter-clockwise. The default is 0 degrees (pointed to the right).
 - **`sprite.transparency`** — How see-through the sprite is from 0 to 100. 0 is completely see-through, 100 is not see-through at all. The default is 100.
+- **`sprite.left`** — The x position of the left-most part of the sprite.
+- **`sprite.right`** — The x position of the right-most part of the sprite.
+- **`sprite.top`** — The y position of the top-most part of the sprite.
+- **`sprite.bottom`** — The y position of the bottom-most part of the sprite.
+
+
 
 Image-sprite-only properties:
 
-- **`sprite.image`** — The filename of the image that will be shown.
+- **`sprite.image`** — The filename of the image shown.
 
 Text-sprite-only properties:
 
@@ -304,10 +310,6 @@ Sprites also have some other useful info:
 
 - **`sprite.width`** — Gets how wide the sprite is in pixels.
 - **`sprite.height`** — Gets how tall the sprite is in pixels.
-- **`sprite.left`** — Gets the x position of the left-most part of the sprite.
-- **`sprite.right`** — Gets the x position of the right-most part of the sprite.
-- **`sprite.top`** — Gets the y position of the top-most part of the sprite.
-- **`sprite.bottom`** — Gets the y position of the bottom-most part of the sprite.
 - **`sprite.distance_to(other_sprite)`** — Gets the distance in pixels to `other_sprite`.
 - **`sprite.distance_to(x=100, y=100)`** — Gets the distance to the point x=100, y=100.
 - **`sprite.is_clicked()`** — Returns True if the sprite has just been clicked, otherwise returns False.
