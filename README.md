@@ -231,6 +231,7 @@ Sprites (images and text) have a few simple commands:
 - **`sprite.point_towards(other_sprite)`** — Turns `sprite` so it points at another sprite called `other_sprite`.
 - **`sprite.hide()`** — Hides `sprite`. It can't be clicked when it's hidden.
 - **`sprite.show()`** — Shows `sprite` if it's hidden.
+- **`clone = sprite.clone()`** — Makes a copy or clone of the sprite and returns it.
 
 
 #### Properties

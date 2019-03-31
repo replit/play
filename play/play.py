@@ -15,6 +15,22 @@ import math as _math
 from .keypress import pygame_key_to_name as _pygame_key_to_name # don't pollute user-facing namespace with library internals
 from .color import color_name_to_rgb as _color_name_to_rgb
 
+def _clamp(num, min_, max_):
+    if num < min_:
+        return min_
+    elif num > max_:
+        return max_
+    return num
+
+class Oops(Exception):
+    def __init__(self, message):
+        # for readability, always prepend exception messages in the library with two blank lines
+        message = '\n\n\tOops!\n\n\t'+message.replace('\n', '\n\t')
+        super(Oops, self).__init__(message)
+
+class Hmm(UserWarning):
+    pass
+
 pygame.init()
 
 class _screen(object):
@@ -43,21 +59,64 @@ screen = _screen()
 # _pygame_display = pygame.display.set_mode((screen_width, screen_height), pygame.DOUBLEBUF | pygame.OPENGL)
 _pygame_display = pygame.display.set_mode((screen.width, screen.height), pygame.DOUBLEBUF)
 
-def _clamp(num, min_, max_):
-    if num < min_:
-        return min_
-    elif num > max_:
-        return max_
-    return num
+class _mouse(object):
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+        self._is_clicked = False
+        self._when_clicked_callbacks = []
+        self._when_click_released_callbacks = []
 
-class Oops(Exception):
-    def __init__(self, message):
-        # for readability, always prepend exception messages in the library with two blank lines
-        message = '\n\n\tOops!\n\n\t'+message.replace('\n', '\n\t')
-        super(Oops, self).__init__(message)
+    def is_clicked(self):
+        return self._is_clicked
 
-class Hmm(UserWarning):
-    pass
+    # @decorator
+    def when_clicked(self, func):
+        async_callback = _make_async(func)
+        async def wrapper():
+            wrapper.is_running = True
+            await async_callback()
+            wrapper.is_running = False
+        wrapper.is_running = False
+        self._when_clicked_callbacks.append(wrapper)
+        return wrapper
+
+    # @decorator
+    def when_click_released(self, func):
+        async_callback = _make_async(func)
+        async def wrapper():
+            wrapper.is_running = True
+            await async_callback()
+            wrapper.is_running = False
+        wrapper.is_running = False
+        self._when_click_released_callbacks.append(wrapper)
+        return wrapper
+
+    def distance_to(self, x=None, y=None):
+        assert(not x is None)
+
+        try:
+            # x can either by a number or a sprite. If it's a sprite:
+            x = x.x
+            y = x.y
+        except AttributeError:
+            x = sprite_or_x
+            y = y
+
+        dx = self.x - x
+        dy = self.y - y
+
+        return _math.sqrt(dx**2 + dy**2)
+
+# @decorator
+def when_mouse_clicked(func):
+    return mouse.when_clicked(func)
+# @decorator
+def when_click_released(func):
+    return mouse.when_click_released(func)
+
+mouse = _mouse()
+
 
 all_sprites = []
 
@@ -68,6 +127,24 @@ def debug(on_or_off):
         _debug = True
     elif on_or_off == 'off':
         _debug = False
+
+background_color = (255, 255, 255)
+def set_background_color(color):
+    global background_color
+
+    # I chose to make set_background_color a function so that we can give
+    # good error messages at the call site if a color isn't recognized.
+    # If we didn't have a function and just set background_color like this:
+    #
+    #       play.background_color = 'gbluereen'
+    #
+    # then any errors resulting from that statement would appear somewhere
+    # deep in this library instead of in the user code.
+
+    if type(color) == tuple:
+        background_color = color
+    else:
+        background_color = _color_name_to_rgb(color)
 
 def random_number(lowest=0, highest=100):
     # if user supplies whole numbers, return whole numbers
@@ -80,8 +157,6 @@ def random_number(lowest=0, highest=100):
 def random_color():
     return (random_number(0, 255), random_number(0, 255), random_number(0, 255))
 
-def new_sprite(image='cat.png', x=0, y=0, size=100, angle=0, transparency=100):
-    return sprite(image=image, x=x, y=y, size=size, angle=angle, transparency=transparency)
 
 def _raise_on_await_warning(func):
     """
@@ -112,6 +187,9 @@ def _make_async(func):
         return func(*args, **kwargs)
     return async_func
 
+def new_sprite(image='cat.png', x=0, y=0, size=100, angle=0, transparency=100):
+    return sprite(image=image, x=x, y=y, size=size, angle=angle, transparency=transparency)
+
 class sprite(object):
     def __init__(self, image='cat.png', x=0, y=0, size=100, angle=0, transparency=100):
         self._image = image
@@ -130,6 +208,7 @@ class sprite(object):
         self._when_clicked_callbacks = []
 
         all_sprites.append(self)
+
 
     def _compute_primary_surface(self):
         self._primary_pygame_surface = pygame.image.load(_os.path.join(self._image))
@@ -340,67 +419,17 @@ You might want to look in your code where you're setting transparency and make s
         self._when_clicked_callbacks.append(wrapper)
         return wrapper
 
+    def _common_properties(self):
+        # used with inheritance to clone
+        return {'x': self.x, 'y': self.y, 'size': self.size, 'transparency': self.transparency, 'angle': self.angle}
 
-class _mouse(object):
-    def __init__(self):
-        self.x = 0
-        self.y = 0
-        self._is_clicked = False
-        self._when_clicked_callbacks = []
-        self._when_click_released_callbacks = []
+    def clone(self):
+        return self.__class__(image=self.image, **self._common_properties())
 
-    def is_clicked(self):
-        return self._is_clicked
 
-    # @decorator
-    def when_clicked(self, func):
-        async_callback = _make_async(func)
-        async def wrapper():
-            wrapper.is_running = True
-            await async_callback()
-            wrapper.is_running = False
-        wrapper.is_running = False
-        self._when_clicked_callbacks.append(wrapper)
-        return wrapper
 
-    # @decorator
-    def when_click_released(self, func):
-        async_callback = _make_async(func)
-        async def wrapper():
-            wrapper.is_running = True
-            await async_callback()
-            wrapper.is_running = False
-        wrapper.is_running = False
-        self._when_click_released_callbacks.append(wrapper)
-        return wrapper
-
-    def distance_to(self, x=None, y=None):
-        assert(not x is None)
-
-        try:
-            # x can either by a number or a sprite. If it's a sprite:
-            x = x.x
-            y = x.y
-        except AttributeError:
-            x = sprite_or_x
-            y = y
-
-        dx = self.x - x
-        dy = self.y - y
-
-        return _math.sqrt(dx**2 + dy**2)
-
-# @decorator
-def when_mouse_clicked(func):
-    return mouse.when_clicked(func)
-# @decorator
-def when_click_released(func):
-    return mouse.when_click_released(func)
-
-mouse = _mouse()
-
-def new_box(color='black', x=0, y=0, width=100, height=200, border_color='light blue', border_width=0):
-    return box(color=color, x=x, y=y, width=width, height=height, border_color=border_color, border_width=border_width)
+def new_box(color='black', x=0, y=0, width=100, height=200, border_color='light blue', border_width=0, angle=0, transparency=100, size=100):
+    return box(color=color, x=x, y=y, width=width, height=height, border_color=border_color, border_width=border_width, angle=angle, transparency=transparency, size=size)
 
 class box(sprite):
     def __init__(self, color='black', x=0, y=0, width=100, height=200, border_color='light blue', border_width=0, transparency=100, size=100, angle=0):
@@ -492,6 +521,9 @@ class box(sprite):
         self._border_width = _border_width
         self._should_recompute_primary_surface = True
 
+    def clone(self):
+        return self.__class__(color=self.color, width=self.width, height=self.height, border_color=self.border_color, border_width=self.border_width, **self._common_properties())
+
 def new_circle(color='black', x=0, y=0, radius=100, border_color='light blue', border_width=0, transparency=100, size=100, angle=0):
     return circle(color=color, x=x, y=y, radius=radius, border_color=border_color, border_width=border_width,
         transparency=transparency, size=size, angle=angle)
@@ -517,6 +549,9 @@ class circle(sprite):
         self._compute_primary_surface()
 
         all_sprites.append(self)
+
+    def clone(self):
+        return self.__class__(color=self.color, radius=self.radius, border_color=self.border_color, border_width=self.border_width, **self._common_properties())
 
     def _compute_primary_surface(self):
         total_diameter = (self._radius + self._border_width) * 2
@@ -578,11 +613,11 @@ class circle(sprite):
         self._should_recompute_primary_surface = True
 
 
-def new_text(words='hi :)', x=0, y=0, font=None, font_size=50, color='black', angle=0, transparency=100):
-    return text(words=words, x=x, y=y, font=font, font_size=font_size, size=100, color=color, angle=angle, transparency=transparency)
+def new_text(words='hi :)', x=0, y=0, font=None, font_size=50, color='black', angle=0, transparency=100, size=100):
+    return text(words=words, x=x, y=y, font=font, font_size=font_size, color=color, angle=angle, transparency=transparency, size=size)
 
 class text(sprite):
-    def __init__(self, words='hi :)', x=0, y=0, font=None, font_size=50, size=100, color='black', angle=0, transparency=100):
+    def __init__(self, words='hi :)', x=0, y=0, font=None, font_size=50, color='black', angle=0, transparency=100, size=100):
         self._words = words
         self.x = x
         self.y = y
@@ -601,6 +636,9 @@ class text(sprite):
         self._when_clicked_callbacks = []
 
         all_sprites.append(self)
+
+    def clone(self):
+        return self.__class__(words=self.words, font=self.font, font_size=self.font_size, color=self.color, **self._common_properties())
 
     def _compute_primary_surface(self):
         try:
@@ -637,7 +675,7 @@ To fix this, either set the font to None, or make sure you have a font file (usu
     def font_size(self):
         return self._font_size
 
-    @font.setter
+    @font_size.setter
     def font_size(self, size):
         self._font_size = size
         self._should_recompute_primary_surface = True
@@ -653,23 +691,6 @@ To fix this, either set the font to None, or make sure you have a font file (usu
 
 
 
-background_color = (255, 255, 255)
-def set_background_color(color):
-    global background_color
-
-    # I chose to make set_background_color a function so that we can give
-    # good error messages at the call site if a color isn't recognized.
-    # If we didn't have a function and just set background_color like this:
-    #
-    #       play.background_color = 'gbluereen'
-    #
-    # then any errors resulting from that statement would appear somewhere
-    # deep in this library instead of in the user code.
-
-    if type(color) == tuple:
-        background_color = color
-    else:
-        background_color = _color_name_to_rgb(color)
 
 # @decorator
 def when_sprite_clicked(*sprites):
