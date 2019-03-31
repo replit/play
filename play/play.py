@@ -187,12 +187,12 @@ def _make_async(func):
         return func(*args, **kwargs)
     return async_func
 
-def new_sprite(image='cat.png', x=0, y=0, size=100, angle=0, transparency=100):
+def new_sprite(image=None, x=0, y=0, size=100, angle=0, transparency=100):
     return sprite(image=image, x=x, y=y, size=size, angle=angle, transparency=transparency)
 
 class sprite(object):
-    def __init__(self, image='cat.png', x=0, y=0, size=100, angle=0, transparency=100):
-        self._image = image
+    def __init__(self, image=None, x=0, y=0, size=100, angle=0, transparency=100):
+        self._image = image or _os.path.join(_os.path.split(__file__)[0], 'blank_image.png')
         self.x = x
         self.y = y
         self._angle = angle
@@ -997,11 +997,6 @@ def start_program():
 """
 cool stuff to add:
     scene class, hide and show scenes in one go (collection of sprites)
-    mouse up
-    mouse move
-    mouse hover
-    mouse hold
-    debug UI for all sprites (bounding box plus values of: x,y,image,size,width,height click state, running commands, mouse coordinates)
     ellipse
     collision system (bouncing balls, platformer)
     play.mouse.is_touching()
@@ -1015,7 +1010,6 @@ cool stuff to add:
     play.stop_music('jam.mp3')
     play.sound('jam.mp3')
     play.volume = 2
-    sprite.clone()
     sprite.is_touching(cat)
     play.gravity(vertical=1.0, horizontal=0)
     sprite.physics( x_velocity, y_velocity, obeys_gravity=True, bounces_off_walls=True, heaviness=1, bounciness=1.0)
@@ -1037,7 +1031,6 @@ cool stuff to add:
 [ ] how to make a text input box simply?
 [ ] how to make paint app?
 [ ] how to make midi keyboard app?
-[ ] how to make click and drag boxes?
 [ ] how to make simple jumping box character with gravity?
 [ ] how to make more advanced platformer?
 [ ] how to make shooter? http://osmstudios.com/tutorials/your-first-love2d-game-in-200-lines-part-1-of-3
@@ -1045,12 +1038,6 @@ cool stuff to add:
 
 funny game idea: pong game where paddle shrinks unless you get powerups that spawn randomly in your zone
 
-principle:
-    - any keyword argument to an object can be set directly e.g.
-        cat = play.new_sprite(image='cat.png', x=0, y=0, ...)
-        cat.image = 'cat_with_tongue.png'
-        cat.x += 5
-        cat.y = 5
 
 IDE ideas:
     - add helpful comment about any code appearing below play.start_program() not running. I made this mistake and it was confusing
