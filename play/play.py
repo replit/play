@@ -390,6 +390,13 @@ class _mouse(object):
 
         return _math.sqrt(dx**2 + dy**2)
 
+# @decorator
+def when_mouse_clicked(func):
+    return mouse.when_clicked(func)
+# @decorator
+def when_click_released(func):
+    return mouse.when_click_released(func)
+
 mouse = _mouse()
 
 def new_box(color='black', x=0, y=0, width=100, height=200, border_color='light blue', border_width=0):

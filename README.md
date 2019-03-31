@@ -379,9 +379,9 @@ async def do(sprite):
 In the above program, clicking `face1` or `face2` will run the code for each sprite separately. Note that the function is defined with a parameter e.g. `def do(sprite):` instead of just `def do():`.
 
 
-#### `@play.mouse.when_clicked`
+#### `@play.mouse.when_clicked` or `@play.when_mouse_clicked`
 
-To run code when the mouse is clicked anywhere, use `@play.mouse.when_clicked`.
+To run code when the mouse is clicked anywhere, use `@play.mouse.when_clicked` or `@play.when_mouse_clicked` (they do the same exact thing).
 
 In the code below, when a click is detected, the text will move to the click location and the coordinates will be shown:
 
@@ -394,9 +394,9 @@ def do():
     text.go_to(play.mouse)
 ```
 
-#### `@play.mouse.when_click_released`
+#### `@play.mouse.when_click_released` or `@play.when_click_released`
 
-To run code when the mouse button is released, use `@play.mouse.when_click_released`.
+To run code when the mouse button is released, use `@play.mouse.when_click_released` `@play.when_click_released` (they do the same exact thing).
 
 In the code below, the cat can be dragged around when it's clicked by the mouse:
 
