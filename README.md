@@ -252,7 +252,7 @@ Sprites also have properties that can be changed to change how the sprite looks.
 
 Image-sprite-only properties:
 
-- **`sprite.image`** — The filename of the image shown.
+- **`sprite.image`** — The filename of the image shown. If `None` is provided initially, a blank image will show up.
 
 Text-sprite-only properties:
 

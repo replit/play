@@ -25,7 +25,7 @@ def _clamp(num, min_, max_):
 class Oops(Exception):
     def __init__(self, message):
         # for readability, always prepend exception messages in the library with two blank lines
-        message = '\n\n\tOops!\n\n\t'+message.replace('\n', '\n\t')
+        message = '\n\n\tOops!\n\n\t'+message.replace('\n', '\n\t')+'\n'
         super(Oops, self).__init__(message)
 
 class Hmm(UserWarning):
@@ -211,7 +211,11 @@ class sprite(object):
 
 
     def _compute_primary_surface(self):
-        self._primary_pygame_surface = pygame.image.load(_os.path.join(self._image))
+        try:
+            self._primary_pygame_surface = pygame.image.load(_os.path.join(self._image))
+        except pygame.error as exc:
+            raise Oops(f"""We couldn't find the image file you provided named "{self._image}".
+If the file is in a folder, make sure you add the folder name, too.""") from exc
         self._primary_pygame_surface.set_colorkey((255,255,255, 255)) # set background to transparent
 
         self._should_recompute_primary_surface = False
