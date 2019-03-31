@@ -63,6 +63,18 @@ All other commands go between those two commands.
 
 To try any of the following examples, go to **[repl.it and try pasting code in](https://repl.it/@glench/Replit-Play-Template)**.
 
+## Commands
+
+The rest of this document is divided into the following sections:
+
+- [Basic Commands](#basic-commands) - Getting graphics, shapes, and text on the screen.
+- [Animation Commands](#animation-commands) - Animating and controlling graphics, shapes, and text.
+- [Sprite Commands](#sprite-commands) - Controlling sprites.
+- [Mouse Commands](#mouse-commands) - Detecting mouse actions (clicks, movement).
+- [Keyboard Commands](#keyboard-commands) - Detecting keyboard actions.
+- [Other Useful Commands](#other-useful-commands) - General commands.
+- [Why use Python Play?](#why-use-python-play) - How this library is different from other graphics libraries.
+
 ## Basic Commands
 
 To get images or text on the screen, use the following commands. (Copy and paste the code below to try it out.)
@@ -574,7 +586,7 @@ If you don't understand any of this, it's generally safe to just include `async`
 
 Python Play was designed to be an excellent starting point for brand new programmers. The goal of the project is to give someone that has never programmed before a compelling and succesful experience in their first few minutes of programming. We aimed to make graphics programming as accessible as possible to as young an audience as possible.
 
-We found that many existing programming languages and graphics libraries presented unecessary difficulties for new programmers — difficulties making simple things happen, confusing language, confusing program flow, unexplained concepts, etc. We know that even with one disagreeable initial experience people can be turned away from programming forever, and we wanted to prevent that outcome as much as possible.
+We found that many existing programming languages and graphics libraries presented unnecessary difficulties for new programmers — difficulties making simple things happen, confusing language, confusing program flow, unexplained concepts, etc. We know that even one initial disagreeable experience can turn people away from programming forever, and we wanted to prevent that outcome as much as possible.
 
 Python Play was inspired by [MIT's Scratch](https://scratch.mit.edu), which has introduced millions of children and adults to programming and helped them to create and share personally meaningful computational projects. In fact, Python Play's main designer worked on Scratch professionally for a brief period. But we found that for some learners, Scratch — with its graphical blocks and colorful interface — didn't feel like "real programming". For those learners wishing to use a mainstream textual programming language while also removing the unnecessary difficulties of graphics programming in these languags, we made Python Play.
 
@@ -589,11 +601,11 @@ Python Play was designed with the following principles in mind:
 
 - Command values should have descriptive labels that make it as clear as possible what the value means.
 
-- Use plain English as much as possible. For mathematical concepts, try to use language programmers might see in math classes. Try to use short names that are easier for younger people to type. Many of the commands and names were borrowed from Scratch, whose designers have spent decades see what language children can understand.
+- Use plain English as much as possible. For mathematical concepts, try to use language programmers might see in math classes. Try to use short names that are easier for younger people to type. Many of the commands and names were borrowed from Scratch, whose designers have spent decades working with children and observing what language makes sense to them.
 
 
 Python Play was also designed with a custom Repl.it IDE in mind (coming soon), one that significantly lowers the usability problems of programming (installing the language, using a text editor, using the terminal, running programs, showing which commands are available, etc).
 
-While the learning curve for Python and Python Play are far from ideal for new programmers, we still think Python Play provides a great way for new programmers to start programming with graphics.
+While the learning curve for Python and Python Play are still far from ideal for new programmers, we still think Python Play provides a great way for new programmers to start programming with graphics.
 
 <3
