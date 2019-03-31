@@ -682,6 +682,7 @@ def when_sprite_clicked(*sprites):
 pygame.key.set_repeat(200, 16)
 _pressed_keys = {}
 _keypress_callbacks = []
+_keyrelease_callbacks = []
 
 # @decorator
 def when_any_key_pressed(func):
@@ -716,6 +717,39 @@ def when_key_pressed(*keys):
         return wrapper
     return decorator
 
+# @decorator
+def when_any_key_released(func):
+    if not callable(func):
+        raise Oops("""@play.when_any_key_released doesn't use a list of keys. Try just this instead:
+
+@play.when_any_key_released
+async def do(key):
+    print("This key was released!", key)
+""")
+    async_callback = _make_async(func)
+    async def wrapper(*args, **kwargs):
+        wrapper.is_running = True
+        await async_callback(*args, **kwargs)
+        wrapper.is_running = False
+    wrapper.keys = None
+    wrapper.is_running = False
+    _keyrelease_callbacks.append(wrapper)
+    return wrapper
+
+# @decorator
+def when_key_released(*keys):
+    def decorator(func):
+        async_callback = _make_async(func)
+        async def wrapper(*args, **kwargs):
+            wrapper.is_running = True
+            await async_callback(*args, **kwargs)
+            wrapper.is_running = False
+        wrapper.keys = keys
+        wrapper.is_running = False
+        _keyrelease_callbacks.append(wrapper)
+        return wrapper
+    return decorator
+
 def key_is_pressed(*keys):
     """
     Returns True if any of the given keys are pressed.
@@ -741,11 +775,13 @@ _loop = _asyncio.get_event_loop()
 _loop.set_debug(False)
 
 _keys_pressed_this_frame = []
+_keys_released_this_frame = []
 _keys_to_skip = [pygame.K_MODE]
 pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION])
 _clock = pygame.time.Clock()
 def _game_loop():
     _keys_pressed_this_frame.clear() # do this instead of `_keys_pressed_this_frame = []` to save a tiny bit of memory
+    _keys_released_this_frame.clear()
     click_happened_this_frame = False
     click_release_happened_this_frame = False
 
@@ -770,6 +806,7 @@ def _game_loop():
                 _keys_pressed_this_frame.append(name)
         if event.type == pygame.KEYUP:
             if not (event.key in _keys_to_skip):
+                _keys_released_this_frame.append(_pressed_keys[event.key])
                 del _pressed_keys[event.key]
 
 
@@ -777,11 +814,18 @@ def _game_loop():
     ############################################################
     # @when_any_key_pressed and @when_key_pressed callbacks
     ############################################################
-    if _keys_pressed_this_frame:
-        for key in _keys_pressed_this_frame:
-            for callback in _keypress_callbacks:
-                if not callback.is_running and (callback.keys is None or key in callback.keys):
-                    _loop.create_task(callback(key))
+    for key in _keys_pressed_this_frame:
+        for callback in _keypress_callbacks:
+            if not callback.is_running and (callback.keys is None or key in callback.keys):
+                _loop.create_task(callback(key))
+
+    ############################################################
+    # @when_any_key_released and @when_key_released callbacks
+    ############################################################
+    for key in _keys_released_this_frame:
+        for callback in _keyrelease_callbacks:
+            if not callback.is_running and (callback.keys is None or key in callback.keys):
+                _loop.create_task(callback(key))
 
 
     ####################################

@@ -426,6 +426,28 @@ def do():
 ## Keyboard Commands
 
 
+#### `play.key_is_pressed()`
+
+You can use `play.key_is_pressed()` to detect keypresses.
+
+In the code below, pressing the `arrow` keys or `w/a/s/d` will make the cat go in the desired direction.
+
+```python
+cat = play.new_text('=^.^=')
+
+@play.repeat_forever
+def do():
+    if play.key_is_pressed('up', 'w'):
+        cat.y += 15
+    if play.key_is_pressed('down', 's'):
+        cat.y -= 15
+
+    if play.key_is_pressed('right', 'd'):
+        cat.x += 15
+    if play.key_is_pressed('left', 'a'):
+        cat.x -= 15
+```
+
 #### `@play.when_key_pressed()`
 
 You can use `@play.when_key_pressed()` to run code when specific keys are pressed.
@@ -444,27 +466,6 @@ def do(key):
 ```
 
 
-#### `play.key_is_pressed()`
-
-You can also use `play.key_is_pressed()` to detect keypresses.
-
-In the code below, pressing the arrow keys or w/a/s/d will make the cat go in the desired direction.
-
-```python
-cat = play.new_text('=^.^=')
-
-@play.repeat_forever
-def do():
-    if play.key_is_pressed('up', 'w'):
-        cat.y += 15
-    if play.key_is_pressed('down', 's'):
-        cat.y -= 15
-
-    if play.key_is_pressed('right', 'd'):
-        cat.x += 15
-    if play.key_is_pressed('left', 'a'):
-        cat.x -= 15
-```
 
 
 #### `@play.when_any_key_pressed`
@@ -476,12 +477,40 @@ In the code below, any key you press will be displayed on the screen:
 ```python
 text = play.new_text('')
 
-@play.repeat_forever
+@play.when_any_key_pressed
 def do(key):
     text.words = f'{key} pressed!'
 ```
 
+#### `@play.when_key_released`
 
+Exactly like `@play.when_key_pressed` but runs the code when specific keys are released.
+
+In the code below, text will appear on screen only if the `up` arrow is pressed.
+
+```python
+text = play.new_text('')
+
+@play.when_key_released('up')
+async def do(key):
+    text.words = 'up arrow released!'
+    await play.timer(seconds=1)
+    text.words = ''
+```
+
+#### `@play.when_any_key_released`
+
+Exactly like `@play.when_any_key_pressed` but runs the code when any key is released.
+
+In the code below, the name of the most recently released key will show up on screen.
+
+```python
+text = play.new_text('')
+
+@play.when_any_key_pressed
+def do(key):
+    text.words = f'{key} key released!''
+```
 
 
 ## Other Useful Commands
