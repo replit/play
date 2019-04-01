@@ -229,6 +229,7 @@ Sprites (images and text) have a few simple commands:
 - **`sprite.go_to(other_sprite)`** — Makes `sprite` go to another sprite named `other_sprite`'s position on the screen.
 - **`sprite.go_to(x=100, y=50)`** — Makes `sprite` go to x=100, y=50 (right and up a little).
 - **`sprite.point_towards(other_sprite)`** — Turns `sprite` so it points at another sprite called `other_sprite`.
+- **`sprite.point_towards(x=100, y=50)`** — Turns `sprite` so it points the (100, 50) point.
 - **`sprite.hide()`** — Hides `sprite`. It can't be clicked when it's hidden.
 - **`sprite.show()`** — Shows `sprite` if it's hidden.
 - **`clone = sprite.clone()`** — Makes a copy or clone of the sprite and returns it.
