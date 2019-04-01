@@ -100,8 +100,7 @@ class _mouse(object):
             x = x.x
             y = x.y
         except AttributeError:
-            x = sprite_or_x
-            y = y
+            pass
 
         dx = self.x - x
         dy = self.y - y
@@ -324,7 +323,7 @@ You might want to look in your code where you're setting transparency and make s
         try:
             x, y = x.x, x.y
         except AttributeError:
-            x, y = x, y
+            pass
         self.angle = _math.degrees(_math.atan2(y-self.y, x-self.x))
 
 
@@ -357,8 +356,7 @@ You might want to look in your code where you're setting transparency and make s
             x = x.x
             y = x.y
         except AttributeError:
-            x = sprite_or_x
-            y = y
+            pass
 
         dx = self.x - x
         dy = self.y - y
