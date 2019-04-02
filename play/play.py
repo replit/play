@@ -258,11 +258,10 @@ If the file is in a folder, make sure you add the folder name, too.""") from exc
     def is_clicked(self):
         return self._is_clicked
 
-    def move(self, steps):
+    def move(self, steps=3):
         angle = _math.radians(self.angle)
-        self.x += int(steps * _math.cos(angle))
-        self.y += int(steps * _math.sin(angle))
-
+        self.x += steps * _math.cos(angle)
+        self.y += steps * _math.sin(angle)
 
     def turn(self, degrees=10):
         self.angle += degrees
