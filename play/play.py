@@ -101,7 +101,7 @@ class _mouse(object):
             x = x.x
             y = x.y
         except AttributeError:
-            x = sprite_or_x
+            x = x
             y = y
 
         dx = self.x - x
