@@ -963,7 +963,7 @@ def _game_loop():
                 _pressed_keys[event.key] = name
                 _keys_pressed_this_frame.append(name)
         if event.type == pygame.KEYUP:
-            if not (event.key in _keys_to_skip):
+            if not (event.key in _keys_to_skip) and event.key in _pressed_keys:
                 _keys_released_this_frame.append(_pressed_keys[event.key])
                 del _pressed_keys[event.key]
 
