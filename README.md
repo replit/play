@@ -67,8 +67,8 @@ To try any of the following examples, go to **[repl.it and try pasting code in](
 
 The rest of this document is divided into the following sections:
 
-- [Basic Commands](#basic-commands) - Getting graphics, shapes, and text on the screen.
-- [Animation Commands](#animation-commands) - Animating and controlling graphics, shapes, and text.
+- [Basic Commands](#basic-commands) - Getting graphics, shapes, and text on the screen. Also changing the background.
+- [Animation and Control Commands](#animation-and-control-commands) - Animating and controlling graphics, shapes, and text.
 - [Sprite Commands](#sprite-commands) - Controlling sprites.
 - [Mouse Commands](#mouse-commands) - Detecting mouse actions (clicks, movement).
 - [Keyboard Commands](#keyboard-commands) - Detecting keyboard actions.
@@ -138,7 +138,7 @@ Anywhere you can set a color in Python Play, you can do it using a named color l
 
 
 
-## Animation Commands
+## Animation and Control Commands
 
 #### `@play.repeat_forever`
 To make things move around, you can start by using `@play.repeat_forever`, like this:
