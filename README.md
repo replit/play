@@ -100,7 +100,7 @@ This will place an image in the middle of the screen. Make sure you have a file 
 
 #### `play.new_text()`
 ```python
-greeting = play.new_text(words='hey there', x=50, y=0, angle=0, font=None, font_size=50, color='black', transparency=100)
+greeting = play.new_text(words='hi :)', x=0, y=0, angle=0, font=None, font_size=50, color='black', transparency=100)
 ```
 
 This will put some text on the screen.
