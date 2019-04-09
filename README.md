@@ -659,7 +659,7 @@ Python Play was designed with the following principles in mind:
 
 - Command values should have descriptive labels that make it as clear as possible what the value means.
 
-- Use plain English as much as possible. For mathematical concepts, try to use language programmers might see in math classes. Try to use short names that are easier for younger people to type and spell. Many of the commands and names were borrowed from Scratch, whose designers have spent decades working with children and observing what language makes sense to them.
+- Use plain English as much as possible. For mathematical concepts, try to use language programmers might see in math classes. Try to use short names that are easier for younger people to type and spell. Make errors as clear and constructive as possible. Many of the commands and names were borrowed from Scratch, whose designers have spent decades working with children and observing what language makes sense to them.
 
 
 Python Play was also designed with a custom Repl.it IDE in mind (coming soon), one that significantly lowers the usability problems of programming (installing the language, using a text editor, using the terminal, running programs, showing which commands are available, etc).
