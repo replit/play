@@ -657,7 +657,7 @@ Python Play was designed with the following principles in mind:
 
 - Lines of code should be easily copy and pasted.
 
-- Command values should have descriptive labels that make it as clear as possible what the value means.
+- Command values should have descriptive labels that make it as clear as possible what the value means. Instead of `play.new_sprite('character.png', 50, 100)`, `play.new_sprite(image='character.png', x=50, y=100)`.
 
 - Use plain English as much as possible. For mathematical concepts, try to use language programmers might see in math classes. Try to use short names that are easier for younger people to type and spell. Make errors as clear and constructive as possible. Many of the commands and names were borrowed from Scratch, whose designers have spent decades working with children and observing what language makes sense to them.
 
