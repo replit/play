@@ -653,7 +653,7 @@ Python Play was designed with the following principles in mind:
 
 - No boilerplate - every line of code should do something meaningful and understandable.
 
-- As much as possible, commands should have immediate visual effects. For example, if a programmer types a `new_sprite` command, they shouldn't have to enter a separate `draw` command that makes the sprite show up on the screen.
+- As much as possible, commands should have immediate visual effects. For example, if a programmer types a `new_sprite` command the sprite should show up immediately on the screen, they shouldn't need to understand the invisible distinction between initializing and drawing.
 
 - Lines of code should be easily copy and pasted.
 

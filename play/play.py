@@ -8,6 +8,7 @@ _warnings.formatwarning = warning_format
 
 import pygame
 import pygame.gfxdraw
+import pymunk as _pymunk
 
 import asyncio as _asyncio
 import random as _random
@@ -433,6 +434,20 @@ You might want to look in your code where you're setting transparency and make s
     def clone(self):
         return self.__class__(image=self.image, **self._common_properties())
 
+    def start_physics(self, dx=0, dy=0, obeys_gravity=True, stopped_by_bottom=True, stopped_by_walls=True, stopped_by_top=True, mass=10, bounciness=1.0):
+        moment = _pymunk.moment_for_box(mass, (self.width, self.height))
+
+        self._pymunk_body = _pymunk.Body(mass, moment)
+        self._pymunk_body.position = self.x-self.width/2, self.y
+        self._pymunk_shape = _pymunk.Poly.create_box(self._pymunk_body, (self.width, self.height))
+        self._pymunk_shape.elasticity = bounciness
+        _physics_space.add(self._pymunk_body, self._pymunk_shape)
+
+_physics_space = _pymunk.Space()
+_physics_space.gravity = 0, -1000
+
+shape = _pymunk.Segment(_pymunk.Body(body_type=_pymunk.Body.STATIC), [screen.left, screen.bottom], [screen.right, screen.bottom], 0.0)
+_physics_space.add(shape)
 
 
 def new_box(color='black', x=0, y=0, width=100, height=200, border_color='light blue', border_width=0, angle=0, transparency=100, size=100):
@@ -929,12 +944,30 @@ def key_is_pressed(*keys):
             return True
     return False
 
+def _simulate_physics_and_update_sprites():
+
+    for sprite in all_sprites:
+        sprite._pymunk_shape.body.position.x = sprite.x - sprite.width/2
+        sprite._pymunk_shape.body.position.y = sprite.y
+
+    # more steps means more accurate simulation, but more processing time
+    NUM_SIMULATION_STEPS = 4
+    for _ in range(NUM_SIMULATION_STEPS):
+        # the smaller the simulation step, the more accurate the simulation
+        _physics_space.step(1/(60.0*NUM_SIMULATION_STEPS))
+
+    for sprite in all_sprites:
+        sprite.x = sprite._pymunk_shape.body.position.x + sprite.width/2
+        sprite.y = sprite._pymunk_shape.body.position.y
+        sprite.angle = _math.degrees(sprite._pymunk_shape.body.angle)
+
+
 _loop = _asyncio.get_event_loop()
 _loop.set_debug(False)
 
 _keys_pressed_this_frame = []
 _keys_released_this_frame = []
-_keys_to_skip = [pygame.K_MODE]
+_keys_to_skip = (pygame.K_MODE,)
 pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION])
 _clock = pygame.time.Clock()
 def _game_loop():
@@ -1003,12 +1036,15 @@ def _game_loop():
                 _loop.create_task(callback())
 
 
+    _loop.call_soon(_simulate_physics_and_update_sprites)
+
     #############################
     # @repeat_forever callbacks
     #############################
     for callback in _repeat_forever_callbacks:
         if not callback.is_running:
             _loop.create_task(callback())
+
 
     # 1.  get pygame events
     #       - set mouse position, clicked, keys pressed, keys released
