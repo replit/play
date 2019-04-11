@@ -201,6 +201,7 @@ class sprite(object):
         self._size = size
         self._transparency = transparency
 
+        self.physics = None
         self._is_clicked = False
         self._is_hidden = False
 
@@ -370,6 +371,9 @@ You might want to look in your code where you're setting transparency and make s
         return _math.sqrt(dx**2 + dy**2)
 
 
+    def remove(self):
+        # TODO: remove from physics
+        all_sprites.remove(self)
 
     @property 
     def width(self):
@@ -435,19 +439,83 @@ You might want to look in your code where you're setting transparency and make s
         return self.__class__(image=self.image, **self._common_properties())
 
     def start_physics(self, dx=0, dy=0, obeys_gravity=True, stopped_by_bottom=True, stopped_by_walls=True, stopped_by_top=True, mass=10, bounciness=1.0):
-        moment = _pymunk.moment_for_box(mass, (self.width, self.height))
+        if not self.physics:
+            self.physics = _Physics(
+                self,
+                dx,
+                dy,
+                obeys_gravity,
+                stopped_by_bottom,
+                stopped_by_walls,
+                stopped_by_top,
+                mass,
+                bounciness,
+            )
+
+    def stop_physics(self):
+        # TODO: cleanup physics space objects
+        self.physics = None
+
+class _Physics(object):
+    # bounces off other sprites
+
+    def __init__(self, sprite, dx, dy, obeys_gravity, stopped_by_bottom, stopped_by_walls, stopped_by_top, mass, bounciness):
+        self._dx = dx * 10
+        self._dy = dy * 10
+        self._obeys_gravity = obeys_gravity
+        self._stopped_by_bottom = stopped_by_bottom
+        self._stopped_by_walls = stopped_by_walls
+        self._stopped_by_top = stopped_by_top
+        self._mass = mass
+        self._bounciness = bounciness
+
+        if isinstance(sprite, circle):
+            moment = _pymunk.moment_for_circle(mass, 0, sprite.radius, (0, 0))
+        else:
+            moment = _pymunk.moment_for_box(mass, (sprite.width, sprite.height))
 
         self._pymunk_body = _pymunk.Body(mass, moment)
-        self._pymunk_body.position = self.x-self.width/2, self.y
-        self._pymunk_shape = _pymunk.Poly.create_box(self._pymunk_body, (self.width, self.height))
-        self._pymunk_shape.elasticity = bounciness
+        self._pymunk_body.position = sprite.x, sprite.y
+        self._pymunk_body.velocity = (self.dx, self.dy)
+        
+        if isinstance(sprite, circle):
+            self._pymunk_shape = _pymunk.Circle(self._pymunk_body, sprite.radius, (0,0))
+        else:
+            self._pymunk_shape = _pymunk.Poly.create_box(self._pymunk_body, (sprite.width, sprite.height))
+
+        self._pymunk_shape.elasticity = self._bounciness
         _physics_space.add(self._pymunk_body, self._pymunk_shape)
+
+    @property 
+    def dx(self):
+        return self._dx
+    @dx.setter
+    def dx(self, _dx):
+        self._dx = _dx * 10
+        self._pymunk_body.velocity = self._dx, self._pymunk_body.velocity[1]
+
+    @property 
+    def dy(self):
+        return self._dy
+    @dy.setter
+    def dy(self, _dy):
+        self._dy = _dy * 10
+        self._pymunk_body.velocity = self._pymunk_body.velocity[0], self._dy
+
 
 _physics_space = _pymunk.Space()
 _physics_space.gravity = 0, -1000
+# _physics_space.gravity = 0, 0
 
-shape = _pymunk.Segment(_pymunk.Body(body_type=_pymunk.Body.STATIC), [screen.left, screen.bottom], [screen.right, screen.bottom], 0.0)
-_physics_space.add(shape)
+_walls = [
+    _pymunk.Segment(_pymunk.Body(body_type=_pymunk.Body.STATIC), [screen.left, screen.top], [screen.right, screen.top], 0.0), # top
+    _pymunk.Segment(_pymunk.Body(body_type=_pymunk.Body.STATIC), [screen.left, screen.bottom], [screen.right, screen.bottom], 0.0), # bottom
+    _pymunk.Segment(_pymunk.Body(body_type=_pymunk.Body.STATIC), [screen.left, screen.bottom], [screen.left, screen.top], 0.0), # left
+    _pymunk.Segment(_pymunk.Body(body_type=_pymunk.Body.STATIC), [screen.right, screen.bottom], [screen.right, screen.top], 0.0), # right
+]
+for shape in _walls:
+    shape.elasticity = 0.99
+_physics_space.add(_walls)
 
 
 def new_box(color='black', x=0, y=0, width=100, height=200, border_color='light blue', border_width=0, angle=0, transparency=100, size=100):
@@ -467,6 +535,7 @@ class box(sprite):
         self._size = size
         self._angle = angle
         self._is_hidden = False
+        self.physics = None
 
         self._when_clicked_callbacks = []
 
@@ -565,6 +634,7 @@ class circle(sprite):
         self._size = size
         self._angle = angle
         self._is_hidden = False
+        self.physics = None
 
         self._when_clicked_callbacks = []
 
@@ -612,6 +682,8 @@ class circle(sprite):
     def radius(self, _radius):
         self._radius = _radius
         self._should_recompute_primary_surface = True
+        if self.physics:
+            self.physics._pymunk_shape.unsafe_set_radius(self._radius)
 
     ##### border_color #####
     @property 
@@ -661,6 +733,7 @@ class line(sprite):
         self._transparency = transparency
         self._size = size
         self._is_hidden = False
+        self.physics = None
 
         self._when_clicked_callbacks = []
 
@@ -781,6 +854,7 @@ class text(sprite):
 
         self._is_clicked = False
         self._is_hidden = False
+        self.physics = None
 
         self._compute_primary_surface()
 
@@ -947,8 +1021,8 @@ def key_is_pressed(*keys):
 def _simulate_physics_and_update_sprites():
 
     for sprite in all_sprites:
-        sprite._pymunk_shape.body.position.x = sprite.x - sprite.width/2
-        sprite._pymunk_shape.body.position.y = sprite.y
+        if sprite.physics:
+            sprite.physics._pymunk_shape.body.position = sprite.x, sprite.y
 
     # more steps means more accurate simulation, but more processing time
     NUM_SIMULATION_STEPS = 4
@@ -957,9 +1031,10 @@ def _simulate_physics_and_update_sprites():
         _physics_space.step(1/(60.0*NUM_SIMULATION_STEPS))
 
     for sprite in all_sprites:
-        sprite.x = sprite._pymunk_shape.body.position.x + sprite.width/2
-        sprite.y = sprite._pymunk_shape.body.position.y
-        sprite.angle = _math.degrees(sprite._pymunk_shape.body.angle)
+        if sprite.physics:
+            sprite.x = sprite.physics._pymunk_shape.body.position.x
+            sprite.y = sprite.physics._pymunk_shape.body.position.y
+            sprite.angle = _math.degrees(sprite.physics._pymunk_shape.body.angle)
 
 
 _loop = _asyncio.get_event_loop()
