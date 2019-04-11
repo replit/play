@@ -515,6 +515,7 @@ class _Physics(object):
         body_type = _pymunk.Body.DYNAMIC if self.should_move else _pymunk.Body.STATIC
         self._pymunk_body = _pymunk.Body(mass, moment, body_type=body_type)
         self._pymunk_body.position = self.sprite.x, self.sprite.y
+        self._pymunk_body.angle = _math.radians(self.sprite.angle)
         if self.should_move:
             self._pymunk_body.velocity = (self.x_speed, self.y_speed)
         
@@ -534,7 +535,6 @@ class _Physics(object):
 
     def remove(self):
         _physics_space.remove(self._pymunk_body, self._pymunk_shape)
-        self.sprite.physics = None
 
     @property 
     def should_move(self):
