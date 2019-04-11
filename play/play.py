@@ -8,6 +8,7 @@ _warnings.formatwarning = warning_format
 
 import pygame
 import pygame.gfxdraw
+pygame.init()
 import pymunk as _pymunk
 
 import asyncio as _asyncio
@@ -33,7 +34,6 @@ class Oops(Exception):
 class Hmm(UserWarning):
     pass
 
-pygame.init()
 
 class _screen(object):
     def __init__(self, width=800, height=600):
@@ -76,10 +76,7 @@ class _mouse(object):
     def when_clicked(self, func):
         async_callback = _make_async(func)
         async def wrapper():
-            wrapper.is_running = True
             await async_callback()
-            wrapper.is_running = False
-        wrapper.is_running = False
         self._when_clicked_callbacks.append(wrapper)
         return wrapper
 
@@ -87,10 +84,7 @@ class _mouse(object):
     def when_click_released(self, func):
         async_callback = _make_async(func)
         async def wrapper():
-            wrapper.is_running = True
             await async_callback()
-            wrapper.is_running = False
-        wrapper.is_running = False
         self._when_click_released_callbacks.append(wrapper)
         return wrapper
 
@@ -195,8 +189,8 @@ def new_sprite(image=None, x=0, y=0, size=100, angle=0, transparency=100):
 class sprite(object):
     def __init__(self, image=None, x=0, y=0, size=100, angle=0, transparency=100):
         self._image = image or _os.path.join(_os.path.split(__file__)[0], 'blank_image.png')
-        self.x = x
-        self.y = y
+        self._x = x
+        self._y = y
         self._angle = angle
         self._size = size
         self._transparency = transparency
@@ -269,6 +263,24 @@ If the file is in a folder, make sure you add the folder name, too.""") from exc
         self.angle += degrees
 
     @property 
+    def x(self):
+        return self._x
+    @x.setter
+    def x(self, _x):
+        self._x = _x
+        if self.physics:
+            self.physics._pymunk_body.position = self._x, self._y
+
+    @property 
+    def y(self):
+        return self._y
+    @y.setter
+    def y(self, _y):
+        self._y = _y
+        if self.physics:
+            self.physics._pymunk_body.position = self._x, self._y
+
+    @property 
     def transparency(self):
         return self._transparency
 
@@ -303,6 +315,9 @@ You might want to look in your code where you're setting transparency and make s
     def angle(self, _angle):
         self._angle = _angle
         self._should_recompute_secondary_surface = True
+
+        if self.physics:
+            self.physics._pymunk_body.angle = _math.radians(_angle)
 
     @property 
     def size(self):
@@ -372,7 +387,8 @@ You might want to look in your code where you're setting transparency and make s
 
 
     def remove(self):
-        # TODO: remove from physics
+        if self.physics:
+            self.physics.remove()
         all_sprites.remove(self)
 
     @property 
@@ -436,14 +452,29 @@ You might want to look in your code where you're setting transparency and make s
         return {'x': self.x, 'y': self.y, 'size': self.size, 'transparency': self.transparency, 'angle': self.angle}
 
     def clone(self):
+        # TODO: make work with physics
         return self.__class__(image=self.image, **self._common_properties())
 
-    def start_physics(self, dx=0, dy=0, obeys_gravity=True, stopped_by_bottom=True, stopped_by_walls=True, stopped_by_top=True, mass=10, bounciness=1.0):
+    # def __getattr__(self, key):
+    #     # TODO: use physics as a proxy object so users can do e.g. sprite.x_speed
+    #     if not self.physics:
+    #         return getattr(self, key)
+    #     else:
+    #         return getattr(self.physics, key)
+
+    # def __setattr__(self, name, value):
+    #     if not self.physics:
+    #         return setattr(self, name, value)
+    #     elif self.physics and name in :
+    #         return setattr(self.physics, name, value)
+
+    def start_physics(self, should_move=True, x_speed=0, y_speed=0, obeys_gravity=True, stopped_by_bottom=True, stopped_by_walls=True, stopped_by_top=True, mass=10, bounciness=1.0):
         if not self.physics:
             self.physics = _Physics(
                 self,
-                dx,
-                dy,
+                should_move,
+                x_speed,
+                y_speed,
                 obeys_gravity,
                 stopped_by_bottom,
                 stopped_by_walls,
@@ -456,56 +487,105 @@ You might want to look in your code where you're setting transparency and make s
         # TODO: cleanup physics space objects
         self.physics = None
 
+_SPEED_MULTIPLIER = 10
 class _Physics(object):
     # bounces off other sprites
 
-    def __init__(self, sprite, dx, dy, obeys_gravity, stopped_by_bottom, stopped_by_walls, stopped_by_top, mass, bounciness):
-        self._dx = dx * 10
-        self._dy = dy * 10
-        self._obeys_gravity = obeys_gravity
+    def __init__(self, sprite, should_move, x_speed, y_speed, obeys_gravity, stopped_by_bottom, stopped_by_walls, stopped_by_top, mass, bounciness):
+        self.sprite = sprite
+        self._should_move = should_move
+        self._x_speed = x_speed * _SPEED_MULTIPLIER if should_move else 0
+        self._y_speed = y_speed * _SPEED_MULTIPLIER if should_move else 0
+        self._obeys_gravity = obeys_gravity if should_move else False
         self._stopped_by_bottom = stopped_by_bottom
         self._stopped_by_walls = stopped_by_walls
         self._stopped_by_top = stopped_by_top
         self._mass = mass
         self._bounciness = bounciness
 
-        if isinstance(sprite, circle):
-            moment = _pymunk.moment_for_circle(mass, 0, sprite.radius, (0, 0))
-        else:
-            moment = _pymunk.moment_for_box(mass, (sprite.width, sprite.height))
+        self._make_pymunk()
 
-        self._pymunk_body = _pymunk.Body(mass, moment)
-        self._pymunk_body.position = sprite.x, sprite.y
-        self._pymunk_body.velocity = (self.dx, self.dy)
+    def _make_pymunk(self):
+        mass = self.mass if self.should_move else 0
+        if isinstance(self.sprite, circle):
+            moment = _pymunk.moment_for_circle(mass, 0, self.sprite.radius, (0, 0))
+        else:
+            moment = _pymunk.moment_for_box(mass, (self.sprite.width, self.sprite.height))
+
+        body_type = _pymunk.Body.DYNAMIC if self.should_move else _pymunk.Body.STATIC
+        self._pymunk_body = _pymunk.Body(mass, moment, body_type=body_type)
+        self._pymunk_body.position = self.sprite.x, self.sprite.y
+        if self.should_move:
+            self._pymunk_body.velocity = (self.x_speed, self.y_speed)
         
-        if isinstance(sprite, circle):
-            self._pymunk_shape = _pymunk.Circle(self._pymunk_body, sprite.radius, (0,0))
+        if isinstance(self.sprite, circle):
+            self._pymunk_shape = _pymunk.Circle(self._pymunk_body, self.sprite.radius, (0,0))
         else:
-            self._pymunk_shape = _pymunk.Poly.create_box(self._pymunk_body, (sprite.width, sprite.height))
+            self._pymunk_shape = _pymunk.Poly.create_box(self._pymunk_body, (self.sprite.width, self.sprite.height))
 
-        self._pymunk_shape.elasticity = self._bounciness
+        self._pymunk_shape.elasticity = _clamp(self.bounciness, 0, .99)
         _physics_space.add(self._pymunk_body, self._pymunk_shape)
 
-    @property 
-    def dx(self):
-        return self._dx
-    @dx.setter
-    def dx(self, _dx):
-        self._dx = _dx * 10
-        self._pymunk_body.velocity = self._dx, self._pymunk_body.velocity[1]
+
+    def clone(self):
+        # TODO: finish filling out params
+        return self.__class__(sprite=self.sprite, should_move=self.should_move, x_speed=self.x_speed,
+            y_speed=self.y_speed, obeys_gravity=self.obeys_gravity)
+
+    def remove(self):
+        _physics_space.remove(self._pymunk_body, self._pymunk_shape)
+        self.sprite.physics = None
 
     @property 
-    def dy(self):
-        return self._dy
-    @dy.setter
-    def dy(self, _dy):
-        self._dy = _dy * 10
-        self._pymunk_body.velocity = self._pymunk_body.velocity[0], self._dy
+    def should_move(self):
+        return self._should_move
+    @should_move.setter
+    def should_move(self, _should_move):
+        prev_should_move = self._should_move
+        self._should_move = _should_move
+        if prev_should_move != _should_move:
+            self.remove()
+            self._make_pymunk()
 
+    @property 
+    def x_speed(self):
+        return self._x_speed / _SPEED_MULTIPLIER 
+    @x_speed.setter
+    def x_speed(self, _x_speed):
+        self._x_speed = _x_speed * _SPEED_MULTIPLIER
+        self._pymunk_body.velocity = self._x_speed, self._pymunk_body.velocity[1]
 
+    @property 
+    def y_speed(self):
+        return self._y_speed
+    @y_speed.setter
+    def y_speed(self, _y_speed):
+        self._y_speed = _y_speed * 10
+        self._pymunk_body.velocity = self._pymunk_body.velocity[0], self._y_speed
+
+    @property 
+    def bounciness(self):
+        return self._bounciness
+    @bounciness.setter
+    def bounciness(self, _bounciness):
+        self._bounciness = _bounciness
+        self._pymunk_shape.elasticity = _clamp(self._bounciness, 0, .99)
+
+    @property 
+    def mass(self):
+        return self._mass
+    @mass.setter
+    def mass(self, _mass):
+        self._mass = _mass
+        # TODO: update simulation correctly
+
+gravity = -1000, 0
 _physics_space = _pymunk.Space()
-_physics_space.gravity = 0, -1000
-# _physics_space.gravity = 0, 0
+_physics_space.gravity = gravity[1], gravity[0]
+def set_gravity(vertical=-1000, horizontal=0):
+    global gravity
+    gravity = vertical, horizontal
+    _physics_space.gravity = gravity[1], gravity[0]
 
 _walls = [
     _pymunk.Segment(_pymunk.Body(body_type=_pymunk.Body.STATIC), [screen.left, screen.top], [screen.right, screen.top], 0.0), # top
@@ -523,8 +603,8 @@ def new_box(color='black', x=0, y=0, width=100, height=200, border_color='light 
 
 class box(sprite):
     def __init__(self, color='black', x=0, y=0, width=100, height=200, border_color='light blue', border_width=0, transparency=100, size=100, angle=0):
-        self.x = x
-        self.y = y
+        self._x = x
+        self._y = y
         self._width = width
         self._height = height
         self._color = color
@@ -619,12 +699,10 @@ def new_circle(color='black', x=0, y=0, radius=100, border_color='light blue', b
     return circle(color=color, x=x, y=y, radius=radius, border_color=border_color, border_width=border_width,
         transparency=transparency, size=size, angle=angle)
 
-
-
 class circle(sprite):
     def __init__(self, color='black', x=0, y=0, radius=100, border_color='light blue', border_width=0, transparency=100, size=100, angle=0):
-        self.x = x
-        self.y = y
+        self._x = x
+        self._y = y
         self._color = color
         self._radius = radius
         self._border_color = border_color
@@ -633,6 +711,7 @@ class circle(sprite):
         self._transparency = transparency
         self._size = size
         self._angle = angle
+        self._is_clicked = False
         self._is_hidden = False
         self.physics = None
 
@@ -710,8 +789,8 @@ def new_line(color='black', x=0, y=0, length=None, angle=None, thickness=1, x1=N
 
 class line(sprite):
     def __init__(self, color='black', x=0, y=0, length=None, angle=None, thickness=1, x1=None, y1=None, transparency=100, size=100):
-        self.x = x
-        self.y = y
+        self._x = x
+        self._y = y
         self._color = color
         self._thickness = thickness
 
@@ -749,7 +828,7 @@ class line(sprite):
         height = max(abs(self.y1-self.y), self.thickness)
 
         self._primary_pygame_surface = pygame.Surface((width, height), pygame.SRCALPHA)
-        # line is actually draw in _game_loop because coordinates work different
+        # line is actually drawn in _game_loop because coordinates work different
 
         self._should_recompute_primary_surface = False
         self._compute_secondary_surface(force=True)
@@ -843,8 +922,8 @@ def new_text(words='hi :)', x=0, y=0, font=None, font_size=50, color='black', an
 class text(sprite):
     def __init__(self, words='hi :)', x=0, y=0, font=None, font_size=50, color='black', angle=0, transparency=100, size=100):
         self._words = words
-        self.x = x
-        self.y = y
+        self._x = x
+        self._y = y
         self._font = font
         self._font_size = font_size
         self._color = color
@@ -1019,23 +1098,11 @@ def key_is_pressed(*keys):
     return False
 
 def _simulate_physics_and_update_sprites():
-
-    for sprite in all_sprites:
-        if sprite.physics:
-            sprite.physics._pymunk_shape.body.position = sprite.x, sprite.y
-
     # more steps means more accurate simulation, but more processing time
     NUM_SIMULATION_STEPS = 4
     for _ in range(NUM_SIMULATION_STEPS):
         # the smaller the simulation step, the more accurate the simulation
         _physics_space.step(1/(60.0*NUM_SIMULATION_STEPS))
-
-    for sprite in all_sprites:
-        if sprite.physics:
-            sprite.x = sprite.physics._pymunk_shape.body.position.x
-            sprite.y = sprite.physics._pymunk_shape.body.position.y
-            sprite.angle = _math.degrees(sprite.physics._pymunk_shape.body.angle)
-
 
 _loop = _asyncio.get_event_loop()
 _loop.set_debug(False)
@@ -1099,18 +1166,19 @@ def _game_loop():
     ####################################
     if click_happened_this_frame and mouse._when_clicked_callbacks:
         for callback in mouse._when_clicked_callbacks:
-            if not callback.is_running:
-                _loop.create_task(callback())
+            _loop.create_task(callback())
 
-    ####################################
+    ########################################
     # @mouse.when_click_released callbacks
-    ####################################
+    ########################################
     if click_release_happened_this_frame and mouse._when_click_released_callbacks:
         for callback in mouse._when_click_released_callbacks:
-            if not callback.is_running:
-                _loop.create_task(callback())
+            _loop.create_task(callback())
 
 
+    #############################
+    # physics simulation
+    #############################
     _loop.call_soon(_simulate_physics_and_update_sprites)
 
     #############################
@@ -1151,6 +1219,19 @@ def _game_loop():
         if sprite.is_hidden():
             continue
 
+        ######################################################
+        # update sprites with results of physics simulation
+        ######################################################
+        if sprite.physics and sprite.physics.should_move:
+            body = sprite.physics._pymunk_body
+
+            if str(body.position.x) != 'nan': # this condition can happen when changing sprite.physics.should_move
+                sprite._x = body.position.x
+            if str(body.position.y) != 'nan':
+                sprite._y = body.position.y
+
+            sprite.angle = _math.degrees(body.angle)
+            sprite.physics._x_speed, sprite.physics._y_speed = body.velocity
 
         #################################
         # @sprite.when_clicked events
@@ -1256,26 +1337,20 @@ def start_program():
 
 """
 cool stuff to add:
-    scene class, hide and show scenes in one go (collection of sprites)
-    ellipse
-    collision system (bouncing balls, platformer)
-    play.mouse.is_touching()
     @sprite.when_touched
+    sprite.is_touching(cat)
+    play.mouse.is_touching()
+    scene class, hide and show scenes in one go (collection of sprites)
 
     sprite.glide_to(other_sprite, seconds=1)
-    sprite.remove()
     dog.go_to(cat.bottom) # dog.go_to(cat.bottom+5)
     play sound / music
     play.music('jam.mp3', loop=False)
     play.stop_music('jam.mp3')
     play.sound('jam.mp3')
     play.volume = 2
-    sprite.is_touching(cat)
-    play.gravity(vertical=1.0, horizontal=0)
     sprite.physics( x_velocity, y_velocity, obeys_gravity=True, bounces_off_walls=True, heaviness=1, bounciness=1.0)
         sprite.physics_off()
-        sprite.is_physics_on()
-        box2d is_fixed_rotation good for platformers
     play.background_image('backgrounds/waterfall.png', fit_to_screen=False, x=0,y=0)
     sprite.flip(direction='left-right') sprite.flip(direction='up-down')
     sprite.flip(left_right=True, up_down=False)
