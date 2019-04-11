@@ -484,12 +484,11 @@ You might want to look in your code where you're setting transparency and make s
             )
 
     def stop_physics(self):
-        # TODO: cleanup physics space objects
+        self.physics.remove()
         self.physics = None
 
 _SPEED_MULTIPLIER = 10
 class _Physics(object):
-    # bounces off other sprites
 
     def __init__(self, sprite, should_move, x_speed, y_speed, obeys_gravity, stopped_by_bottom, stopped_by_walls, stopped_by_top, mass, bounciness):
         self.sprite = sprite
