@@ -468,7 +468,7 @@ You might want to look in your code where you're setting transparency and make s
     #     elif self.physics and name in :
     #         return setattr(self.physics, name, value)
 
-    def start_physics(self, should_move=True, x_speed=0, y_speed=0, obeys_gravity=True, stopped_by_bottom=True, stopped_by_walls=True, stopped_by_top=True, mass=10, bounciness=1.0):
+    def start_physics(self, should_move=True, x_speed=0, y_speed=0, obeys_gravity=True, ground_bounce=True, walls_bounce=True, ceiling_bounce=True, bounciness=1.0, can_turn=True, mass=10):
         if not self.physics:
             self.physics = _Physics(
                 self,
@@ -476,11 +476,12 @@ You might want to look in your code where you're setting transparency and make s
                 x_speed,
                 y_speed,
                 obeys_gravity,
-                stopped_by_bottom,
-                stopped_by_walls,
-                stopped_by_top,
-                mass,
+                ground_bounce,
+                walls_bounce,
+                ceiling_bounce,
                 bounciness,
+                can_turn,
+                mass,
             )
 
     def stop_physics(self):
@@ -490,23 +491,27 @@ You might want to look in your code where you're setting transparency and make s
 _SPEED_MULTIPLIER = 10
 class _Physics(object):
 
-    def __init__(self, sprite, should_move, x_speed, y_speed, obeys_gravity, stopped_by_bottom, stopped_by_walls, stopped_by_top, mass, bounciness):
+    def __init__(self, sprite, should_move, x_speed, y_speed, obeys_gravity, ground_bounce, walls_bounce, ceiling_bounce, bounciness, can_turn, mass):
         self.sprite = sprite
         self._should_move = should_move
         self._x_speed = x_speed * _SPEED_MULTIPLIER if should_move else 0
         self._y_speed = y_speed * _SPEED_MULTIPLIER if should_move else 0
         self._obeys_gravity = obeys_gravity if should_move else False
-        self._stopped_by_bottom = stopped_by_bottom
-        self._stopped_by_walls = stopped_by_walls
-        self._stopped_by_top = stopped_by_top
-        self._mass = mass
+        self._ground_bounce = ground_bounce
+        self._walls_bounce = walls_bounce
+        self._ceiling_bounce = ceiling_bounce
         self._bounciness = bounciness
+        self._can_turn = can_turn
+        self._mass = mass
 
         self._make_pymunk()
 
     def _make_pymunk(self):
         mass = self.mass if self.should_move else 0
-        if isinstance(self.sprite, circle):
+
+        if not self.can_turn:
+            moment = _pymunk.inf
+        elif isinstance(self.sprite, circle):
             moment = _pymunk.moment_for_circle(mass, 0, self.sprite.radius, (0, 0))
         else:
             moment = _pymunk.moment_for_box(mass, (self.sprite.width, self.sprite.height))
@@ -527,9 +532,9 @@ class _Physics(object):
         _physics_space.add(self._pymunk_body, self._pymunk_shape)
 
 
-    def clone(self):
+    def clone(self, sprite):
         # TODO: finish filling out params
-        return self.__class__(sprite=self.sprite, should_move=self.should_move, x_speed=self.x_speed,
+        return self.__class__(sprite=sprite, should_move=self.should_move, x_speed=self.x_speed,
             y_speed=self.y_speed, obeys_gravity=self.obeys_gravity)
 
     def remove(self):
@@ -569,6 +574,17 @@ class _Physics(object):
     def bounciness(self, _bounciness):
         self._bounciness = _bounciness
         self._pymunk_shape.elasticity = _clamp(self._bounciness, 0, .99)
+
+    @property 
+    def can_turn(self):
+        return self._can_turn
+    @can_turn.setter
+    def can_turn(self, _can_turn):
+        prev_can_turn = self._can_turn
+        self._can_turn = _can_turn
+        if self._can_turn != prev_can_turn:
+            self.remove()
+            self._make_pymunk()
 
     @property 
     def mass(self):
