@@ -60,6 +60,8 @@ screen = _screen()
 
 # _pygame_display = pygame.display.set_mode((screen_width, screen_height), pygame.DOUBLEBUF | pygame.OPENGL)
 _pygame_display = pygame.display.set_mode((screen.width, screen.height), pygame.DOUBLEBUF)
+pygame.display.set_caption("Python Play")
+
 
 class _mouse(object):
     def __init__(self):
@@ -521,7 +523,7 @@ class _Physics(object):
         self._pymunk_body.position = self.sprite.x, self.sprite.y
         self._pymunk_body.angle = _math.radians(self.sprite.angle)
         if self.can_move:
-            self._pymunk_body.velocity = (self.x_speed, self.y_speed)
+            self._pymunk_body.velocity = (self._x_speed, self._y_speed)
         
         if isinstance(self.sprite, circle):
             self._pymunk_shape = _pymunk.Circle(self._pymunk_body, self.sprite.radius, (0,0))
@@ -603,10 +605,10 @@ def set_gravity(vertical=-1000, horizontal=0):
     _physics_space.gravity = gravity[1], gravity[0]
 
 _walls = [
-    _pymunk.Segment(_pymunk.Body(body_type=_pymunk.Body.STATIC), [screen.left, screen.top], [screen.right, screen.top], 0.0), # top
-    _pymunk.Segment(_pymunk.Body(body_type=_pymunk.Body.STATIC), [screen.left, screen.bottom], [screen.right, screen.bottom], 0.0), # bottom
-    _pymunk.Segment(_pymunk.Body(body_type=_pymunk.Body.STATIC), [screen.left, screen.bottom], [screen.left, screen.top], 0.0), # left
-    _pymunk.Segment(_pymunk.Body(body_type=_pymunk.Body.STATIC), [screen.right, screen.bottom], [screen.right, screen.top], 0.0), # right
+    _pymunk.Segment(_physics_space.static_body, [screen.left, screen.top], [screen.right, screen.top], 0.0), # top
+    _pymunk.Segment(_physics_space.static_body, [screen.left, screen.bottom], [screen.right, screen.bottom], 0.0), # bottom
+    _pymunk.Segment(_physics_space.static_body, [screen.left, screen.bottom], [screen.left, screen.top], 0.0), # left
+    _pymunk.Segment(_physics_space.static_body, [screen.right, screen.bottom], [screen.right, screen.top], 0.0), # right
 ]
 for shape in _walls:
     shape.elasticity = 0.99
