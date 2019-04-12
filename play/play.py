@@ -470,20 +470,21 @@ You might want to look in your code where you're setting transparency and make s
     #     elif self.physics and name in :
     #         return setattr(self.physics, name, value)
 
-    def start_physics(self, can_move=True, x_speed=0, y_speed=0, obey_gravity=True, ground_bounce=True, walls_bounce=True, ceiling_bounce=True, bounciness=1.0, can_turn=True, mass=10):
+    def start_physics(self, can_move=True, can_turn=True, x_speed=0, y_speed=0, obeys_gravity=True, bottom_stop=True, sides_stop=True, top_stop=True, bounciness=1.0, mass=10, friction=0.1):
         if not self.physics:
             self.physics = _Physics(
                 self,
                 can_move,
+                can_turn,
                 x_speed,
                 y_speed,
-                obey_gravity,
-                ground_bounce,
-                walls_bounce,
-                ceiling_bounce,
+                obeys_gravity,
+                bottom_stop,
+                sides_stop,
+                top_stop,
                 bounciness,
-                can_turn,
                 mass,
+                friction,
             )
 
     def stop_physics(self):
@@ -493,18 +494,19 @@ You might want to look in your code where you're setting transparency and make s
 _SPEED_MULTIPLIER = 10
 class _Physics(object):
 
-    def __init__(self, sprite, can_move, x_speed, y_speed, obey_gravity, ground_bounce, walls_bounce, ceiling_bounce, bounciness, can_turn, mass):
+    def __init__(self, sprite, can_move, can_turn, x_speed, y_speed, obeys_gravity, bottom_stop, sides_stop, top_stop, bounciness, mass, friction):
         self.sprite = sprite
         self._can_move = can_move
+        self._can_turn = can_turn if can_move else False
         self._x_speed = x_speed * _SPEED_MULTIPLIER if can_move else 0
         self._y_speed = y_speed * _SPEED_MULTIPLIER if can_move else 0
-        self._obey_gravity = obey_gravity if can_move else False
-        self._ground_bounce = ground_bounce
-        self._walls_bounce = walls_bounce
-        self._ceiling_bounce = ceiling_bounce
+        self._obeys_gravity = obeys_gravity if can_move else False
+        self._bottom_stop = bottom_stop
+        self._sides_stop = sides_stop
+        self._top_stop = top_stop
         self._bounciness = bounciness
-        self._can_turn = can_turn
         self._mass = mass
+        self._friction = friction
 
         self._make_pymunk()
 
@@ -531,6 +533,7 @@ class _Physics(object):
             self._pymunk_shape = _pymunk.Poly.create_box(self._pymunk_body, (self.sprite.width, self.sprite.height))
 
         self._pymunk_shape.elasticity = _clamp(self.bounciness, 0, .99)
+        self._pymunk_shape.friction = self._friction
         _physics_space.add(self._pymunk_body, self._pymunk_shape)
 
 
@@ -540,7 +543,12 @@ class _Physics(object):
             y_speed=self.y_speed, obeys_gravity=self.obeys_gravity)
 
     def remove(self):
-        _physics_space.remove(self._pymunk_body, self._pymunk_shape)
+        if self._pymunk_body:
+            _physics_space.remove(self._pymunk_body)
+        if self._pymunk_shape:
+            _physics_space.remove(self._pymunk_shape)
+        self._pymunk_body = None
+        self._pymunk_shape = None
 
     @property 
     def can_move(self):
@@ -596,8 +604,10 @@ class _Physics(object):
         self._mass = _mass
         # TODO: update simulation correctly
 
+# vertical, horizontal
 gravity = -1000, 0
 _physics_space = _pymunk.Space()
+physics_space = _physics_space
 _physics_space.gravity = gravity[1], gravity[0]
 def set_gravity(vertical=-1000, horizontal=0):
     global gravity
@@ -612,6 +622,7 @@ _walls = [
 ]
 for shape in _walls:
     shape.elasticity = 0.99
+    shape.friction = .4
 _physics_space.add(_walls)
 
 
@@ -909,7 +920,8 @@ class line(sprite):
         dx = self.x - self.x1
         dy = self.y - self.y1
 
-        return _math.sqrt(dx**2 + dy**2), _math.degrees(_math.atan2(y-self.y, x-self.x))
+        # TODO: this doesn't work at all
+        return _math.sqrt(dx**2 + dy**2), _math.degrees(_math.atan2(dy, dx))
 
     ##### x1 #####
     @property 
