@@ -468,14 +468,14 @@ You might want to look in your code where you're setting transparency and make s
     #     elif self.physics and name in :
     #         return setattr(self.physics, name, value)
 
-    def start_physics(self, should_move=True, x_speed=0, y_speed=0, obeys_gravity=True, ground_bounce=True, walls_bounce=True, ceiling_bounce=True, bounciness=1.0, can_turn=True, mass=10):
+    def start_physics(self, can_move=True, x_speed=0, y_speed=0, obey_gravity=True, ground_bounce=True, walls_bounce=True, ceiling_bounce=True, bounciness=1.0, can_turn=True, mass=10):
         if not self.physics:
             self.physics = _Physics(
                 self,
-                should_move,
+                can_move,
                 x_speed,
                 y_speed,
-                obeys_gravity,
+                obey_gravity,
                 ground_bounce,
                 walls_bounce,
                 ceiling_bounce,
@@ -491,12 +491,12 @@ You might want to look in your code where you're setting transparency and make s
 _SPEED_MULTIPLIER = 10
 class _Physics(object):
 
-    def __init__(self, sprite, should_move, x_speed, y_speed, obeys_gravity, ground_bounce, walls_bounce, ceiling_bounce, bounciness, can_turn, mass):
+    def __init__(self, sprite, can_move, x_speed, y_speed, obey_gravity, ground_bounce, walls_bounce, ceiling_bounce, bounciness, can_turn, mass):
         self.sprite = sprite
-        self._should_move = should_move
-        self._x_speed = x_speed * _SPEED_MULTIPLIER if should_move else 0
-        self._y_speed = y_speed * _SPEED_MULTIPLIER if should_move else 0
-        self._obeys_gravity = obeys_gravity if should_move else False
+        self._can_move = can_move
+        self._x_speed = x_speed * _SPEED_MULTIPLIER if can_move else 0
+        self._y_speed = y_speed * _SPEED_MULTIPLIER if can_move else 0
+        self._obey_gravity = obey_gravity if can_move else False
         self._ground_bounce = ground_bounce
         self._walls_bounce = walls_bounce
         self._ceiling_bounce = ceiling_bounce
@@ -507,7 +507,7 @@ class _Physics(object):
         self._make_pymunk()
 
     def _make_pymunk(self):
-        mass = self.mass if self.should_move else 0
+        mass = self.mass if self.can_move else 0
 
         if not self.can_turn:
             moment = _pymunk.inf
@@ -516,11 +516,11 @@ class _Physics(object):
         else:
             moment = _pymunk.moment_for_box(mass, (self.sprite.width, self.sprite.height))
 
-        body_type = _pymunk.Body.DYNAMIC if self.should_move else _pymunk.Body.STATIC
+        body_type = _pymunk.Body.DYNAMIC if self.can_move else _pymunk.Body.STATIC
         self._pymunk_body = _pymunk.Body(mass, moment, body_type=body_type)
         self._pymunk_body.position = self.sprite.x, self.sprite.y
         self._pymunk_body.angle = _math.radians(self.sprite.angle)
-        if self.should_move:
+        if self.can_move:
             self._pymunk_body.velocity = (self.x_speed, self.y_speed)
         
         if isinstance(self.sprite, circle):
@@ -534,20 +534,20 @@ class _Physics(object):
 
     def clone(self, sprite):
         # TODO: finish filling out params
-        return self.__class__(sprite=sprite, should_move=self.should_move, x_speed=self.x_speed,
+        return self.__class__(sprite=sprite, can_move=self.can_move, x_speed=self.x_speed,
             y_speed=self.y_speed, obeys_gravity=self.obeys_gravity)
 
     def remove(self):
         _physics_space.remove(self._pymunk_body, self._pymunk_shape)
 
     @property 
-    def should_move(self):
-        return self._should_move
-    @should_move.setter
-    def should_move(self, _should_move):
-        prev_should_move = self._should_move
-        self._should_move = _should_move
-        if prev_should_move != _should_move:
+    def can_move(self):
+        return self._can_move
+    @can_move.setter
+    def can_move(self, _can_move):
+        prev_can_move = self._can_move
+        self._can_move = _can_move
+        if prev_can_move != _can_move:
             self.remove()
             self._make_pymunk()
 
@@ -1190,18 +1190,17 @@ def _game_loop():
         for callback in mouse._when_click_released_callbacks:
             _loop.create_task(callback())
 
-
-    #############################
-    # physics simulation
-    #############################
-    _loop.call_soon(_simulate_physics_and_update_sprites)
-
     #############################
     # @repeat_forever callbacks
     #############################
     for callback in _repeat_forever_callbacks:
         if not callback.is_running:
             _loop.create_task(callback())
+
+    #############################
+    # physics simulation
+    #############################
+    _loop.call_soon(_simulate_physics_and_update_sprites)
 
 
     # 1.  get pygame events
@@ -1237,10 +1236,10 @@ def _game_loop():
         ######################################################
         # update sprites with results of physics simulation
         ######################################################
-        if sprite.physics and sprite.physics.should_move:
+        if sprite.physics and sprite.physics.can_move:
             body = sprite.physics._pymunk_body
 
-            if str(body.position.x) != 'nan': # this condition can happen when changing sprite.physics.should_move
+            if str(body.position.x) != 'nan': # this condition can happen when changing sprite.physics.can_move
                 sprite._x = body.position.x
             if str(body.position.y) != 'nan':
                 sprite._y = body.position.y
@@ -1364,8 +1363,6 @@ cool stuff to add:
     play.stop_music('jam.mp3')
     play.sound('jam.mp3')
     play.volume = 2
-    sprite.physics( x_velocity, y_velocity, obeys_gravity=True, bounces_off_walls=True, heaviness=1, bounciness=1.0)
-        sprite.physics_off()
     play.background_image('backgrounds/waterfall.png', fit_to_screen=False, x=0,y=0)
     sprite.flip(direction='left-right') sprite.flip(direction='up-down')
     sprite.flip(left_right=True, up_down=False)
