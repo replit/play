@@ -269,18 +269,26 @@ If the file is in a folder, make sure you add the folder name, too.""") from exc
         return self._x
     @x.setter
     def x(self, _x):
+        prev_x = self._x
         self._x = _x
         if self.physics:
             self.physics._pymunk_body.position = self._x, self._y
+            if prev_x != _x:
+                # setting velocity makes the simulation more realistic usually
+                self.physics._pymunk_body.velocity = _x - prev_x, self.physics._pymunk_body.velocity.y
 
     @property 
     def y(self):
         return self._y
     @y.setter
     def y(self, _y):
+        prev_y = self._y
         self._y = _y
         if self.physics:
             self.physics._pymunk_body.position = self._x, self._y
+            if prev_y != _y:
+                # setting velocity makes the simulation more realistic usually
+                self.physics._pymunk_body.velocity = self.physics._pymunk_body.velocity.x, _y - prev_y
 
     @property 
     def transparency(self):
@@ -470,7 +478,7 @@ You might want to look in your code where you're setting transparency and make s
     #     elif self.physics and name in :
     #         return setattr(self.physics, name, value)
 
-    def start_physics(self, can_move=True, can_turn=True, x_speed=0, y_speed=0, obeys_gravity=True, bottom_stop=True, sides_stop=True, top_stop=True, bounciness=1.0, mass=10, friction=0.1):
+    def start_physics(self, can_move=True, can_turn=True, x_speed=0, y_speed=0, obeys_gravity=True, bottom_stop=True, sides_stop=True, top_stop=True, bounciness=1.0, mass=10, friction=.5):
         if not self.physics:
             self.physics = _Physics(
                 self,
@@ -497,10 +505,10 @@ class _Physics(object):
     def __init__(self, sprite, can_move, can_turn, x_speed, y_speed, obeys_gravity, bottom_stop, sides_stop, top_stop, bounciness, mass, friction):
         self.sprite = sprite
         self._can_move = can_move
-        self._can_turn = can_turn if can_move else False
-        self._x_speed = x_speed * _SPEED_MULTIPLIER if can_move else 0
-        self._y_speed = y_speed * _SPEED_MULTIPLIER if can_move else 0
-        self._obeys_gravity = obeys_gravity if can_move else False
+        self._can_turn = can_turn
+        self._x_speed = x_speed * _SPEED_MULTIPLIER
+        self._y_speed = y_speed * _SPEED_MULTIPLIER
+        self._obeys_gravity = obeys_gravity
         self._bottom_stop = bottom_stop
         self._sides_stop = sides_stop
         self._top_stop = top_stop
@@ -513,24 +521,39 @@ class _Physics(object):
     def _make_pymunk(self):
         mass = self.mass if self.can_move else 0
 
-        if not self.can_turn:
-            moment = _pymunk.inf
-        elif isinstance(self.sprite, circle):
-            moment = _pymunk.moment_for_circle(mass, 0, self.sprite.radius, (0, 0))
+        # non-moving line shapes are platforms and it's easier to take care of them less-generically
+        if not self.can_move and isinstance(self.sprite, line):
+            self._pymunk_body = _physics_space.static_body.copy()
+            self._pymunk_shape = _pymunk.Segment(self._pymunk_body, (self.sprite.x, self.sprite.y), (self.sprite.x1, self.sprite.y1), self.sprite.thickness)
         else:
-            moment = _pymunk.moment_for_box(mass, (self.sprite.width, self.sprite.height))
+            if not self.can_turn:
+                moment = _pymunk.inf
+            elif isinstance(self.sprite, circle):
+                moment = _pymunk.moment_for_circle(mass, 0, self.sprite.radius, (0, 0))
+            elif isinstance(self.sprite, line):
+                moment = _pymunk.moment_for_box(mass, (self.sprite.length, self.sprite.thickness))
+            else:
+                moment = _pymunk.moment_for_box(mass, (self.sprite.width, self.sprite.height))
 
-        body_type = _pymunk.Body.DYNAMIC if self.can_move else _pymunk.Body.STATIC
-        self._pymunk_body = _pymunk.Body(mass, moment, body_type=body_type)
-        self._pymunk_body.position = self.sprite.x, self.sprite.y
-        self._pymunk_body.angle = _math.radians(self.sprite.angle)
-        if self.can_move:
-            self._pymunk_body.velocity = (self._x_speed, self._y_speed)
-        
-        if isinstance(self.sprite, circle):
-            self._pymunk_shape = _pymunk.Circle(self._pymunk_body, self.sprite.radius, (0,0))
-        else:
-            self._pymunk_shape = _pymunk.Poly.create_box(self._pymunk_body, (self.sprite.width, self.sprite.height))
+            body_type = _pymunk.Body.DYNAMIC if self.can_move else _pymunk.Body.STATIC
+            self._pymunk_body = _pymunk.Body(mass, moment, body_type=body_type)
+
+            if isinstance(self.sprite, line):
+                self._pymunk_body.position = self.sprite.x + (self.sprite.x1 - self.sprite.x)/2, self.sprite.y + (self.sprite.y1 - self.sprite.y)/2
+            else:
+                self._pymunk_body.position = self.sprite.x, self.sprite.y
+
+            self._pymunk_body.angle = _math.radians(self.sprite.angle)
+
+            if self.can_move:
+                self._pymunk_body.velocity = (self._x_speed, self._y_speed)
+            
+            if isinstance(self.sprite, circle):
+                self._pymunk_shape = _pymunk.Circle(self._pymunk_body, self.sprite.radius, (0,0))
+            elif isinstance(self.sprite, line):
+                self._pymunk_shape = _pymunk.Segment(self._pymunk_body, (self.sprite.x, self.sprite.y), (self.sprite.x1, self.sprite.y1), self.sprite.thickness)
+            else:
+                self._pymunk_shape = _pymunk.Poly.create_box(self._pymunk_body, (self.sprite.width, self.sprite.height))
 
         self._pymunk_shape.elasticity = _clamp(self.bounciness, 0, .99)
         self._pymunk_shape.friction = self._friction
@@ -571,10 +594,10 @@ class _Physics(object):
 
     @property 
     def y_speed(self):
-        return self._y_speed
+        return self._y_speed / _SPEED_MULTIPLIER
     @y_speed.setter
     def y_speed(self, _y_speed):
-        self._y_speed = _y_speed * 10
+        self._y_speed = _y_speed * _SPEED_MULTIPLIER
         self._pymunk_body.velocity = self._pymunk_body.velocity[0], self._y_speed
 
     @property 
@@ -602,7 +625,7 @@ class _Physics(object):
     @mass.setter
     def mass(self, _mass):
         self._mass = _mass
-        # TODO: update simulation correctly
+        self._pymunk_body.mass = _mass
 
 # vertical, horizontal
 gravity = -1000, 0
@@ -621,8 +644,8 @@ _walls = [
     _pymunk.Segment(_physics_space.static_body, [screen.right, screen.bottom], [screen.right, screen.top], 0.0), # right
 ]
 for shape in _walls:
-    shape.elasticity = 0.99
-    shape.friction = .4
+    shape.elasticity = 1.0
+    shape.friction = .1
 _physics_space.add(_walls)
 
 
@@ -852,10 +875,21 @@ class line(sprite):
         return self.__class__(color=self.color, length=self.length, thickness=self.thickness, **self._common_properties())
 
     def _compute_primary_surface(self):
-        width = max(abs(self.x1-self.x), self.thickness)
-        height = max(abs(self.y1-self.y), self.thickness)
+        # Make a surface that just contains the line and no white-space around the line.
+        # If line isn't horizontal, this surface will be drawn rotated.
+        width = self.length
+        height = self.thickness+1
 
         self._primary_pygame_surface = pygame.Surface((width, height), pygame.SRCALPHA)
+        # self._primary_pygame_surface.set_colorkey((255,255,255, 255)) # set background to transparent
+
+        # # @hack
+        # if self.thickness == 1:
+        #     pygame.draw.aaline(self._primary_pygame_surface, _color_name_to_rgb(self.color), (0,1), (width,1), True)
+        # else:
+        #     pygame.draw.line(self._primary_pygame_surface, _color_name_to_rgb(self.color), (0,_math.floor(height/2)), (width,_math.floor(height/2)), self.thickness)
+
+
         # line is actually drawn in _game_loop because coordinates work different
 
         self._should_recompute_primary_surface = False
@@ -913,12 +947,13 @@ class line(sprite):
     def angle(self, _angle):
         self._angle = _angle
         self._x1, self._y1 = self._calc_endpoint()
-        self._should_recompute_primary_surface = True
+        if self.physics:
+            self.physics._pymunk_body.angle = _math.radians(_angle)
 
 
     def _calc_length_angle(self):
-        dx = self.x - self.x1
-        dy = self.y - self.y1
+        dx = self.x1 - self.x
+        dy = self.y1 - self.y
 
         # TODO: this doesn't work at all
         return _math.sqrt(dx**2 + dy**2), _math.degrees(_math.atan2(dy, dx))
@@ -1126,7 +1161,7 @@ def key_is_pressed(*keys):
             return True
     return False
 
-def _simulate_physics_and_update_sprites():
+def _simulate_physics():
     # more steps means more accurate simulation, but more processing time
     NUM_SIMULATION_STEPS = 4
     for _ in range(NUM_SIMULATION_STEPS):
@@ -1214,7 +1249,7 @@ def _game_loop():
     #############################
     # physics simulation
     #############################
-    _loop.call_soon(_simulate_physics_and_update_sprites)
+    _loop.call_soon(_simulate_physics)
 
 
     # 1.  get pygame events
@@ -1251,14 +1286,22 @@ def _game_loop():
         # update sprites with results of physics simulation
         ######################################################
         if sprite.physics and sprite.physics.can_move:
+
             body = sprite.physics._pymunk_body
-
-            if str(body.position.x) != 'nan': # this condition can happen when changing sprite.physics.can_move
-                sprite._x = body.position.x
-            if str(body.position.y) != 'nan':
-                sprite._y = body.position.y
-
-            sprite.angle = _math.degrees(body.angle)
+            angle = _math.degrees(body.angle)
+            if isinstance(sprite, line):
+                sprite._x = body.position.x - (sprite.length/2) * _math.cos(angle)
+                sprite._y = body.position.y - (sprite.length/2) * _math.sin(angle)
+                sprite._x1 = body.position.x + (sprite.length/2) * _math.cos(angle)
+                sprite._y1 = body.position.y + (sprite.length/2) * _math.sin(angle)
+                # sprite._length, sprite._angle = sprite._calc_length_angle()
+            else:
+                if str(body.position.x) != 'nan': # this condition can happen when changing sprite.physics.can_move
+                    sprite._x = body.position.x
+                if str(body.position.y) != 'nan':
+                    sprite._y = body.position.y
+                    
+            sprite.angle = angle # needs to be .angle, not ._angle so surface gets recalculated
             sprite.physics._x_speed, sprite.physics._y_speed = body.velocity
 
         #################################
@@ -1289,14 +1332,20 @@ def _game_loop():
         if type(sprite) == line:
             # @hack: Line-drawing code should probably be in the line._compute_primary_surface function
             # but the coordinates work different for lines than other sprites.
+
+
+            # x = screen.width/2 + sprite.x
+            # y = screen.height/2 - sprite.y - sprite.thickness
+            # _pygame_display.blit(sprite._secondary_pygame_surface, (x,y) )
+
             x = screen.width/2 + sprite.x
             y = screen.height/2 - sprite.y
             x1 = screen.width/2 + sprite.x1
             y1 = screen.height/2 - sprite.y1
-            if sprite.thickness != 1:
-                 pygame.draw.line(_pygame_display, _color_name_to_rgb(sprite.color), (x,y), (x1,y1), sprite.thickness)
+            if sprite.thickness == 1:
+                 pygame.draw.aaline(_pygame_display, _color_name_to_rgb(sprite.color), (x,y), (x1,y1), True)
             else:
-                 pygame.draw.aaline(_pygame_display, _color_name_to_rgb(sprite.color), (x,y), (x1,y1), sprite.thickness)
+                 pygame.draw.line(_pygame_display, _color_name_to_rgb(sprite.color), (x,y), (x1,y1), sprite.thickness)
         else:
             _pygame_display.blit(sprite._secondary_pygame_surface, (sprite._pygame_x(), sprite._pygame_y()) )
 
