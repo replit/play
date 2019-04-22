@@ -149,7 +149,7 @@ color_names = {
 'whitesmoke':           (245, 245, 245),
 'yellow':               (255, 255,   0),
 'yellowgreen':          (154, 205, 50),
-'transparent':          (  0,   0,  0, 255),
+'transparent':          (  0,   0,  0, 0),
 }
 
 def color_name_to_rgb(name):

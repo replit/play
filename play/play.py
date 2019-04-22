@@ -204,6 +204,41 @@ def _make_async(func):
         return func(*args, **kwargs)
     return async_func
 
+class group(object):
+    def __init__(self, *sprites):
+        self.sprites = sprites
+
+    def __iter__(self):
+        for sprite in self.sprites:
+            yield sprite
+
+    def go_to(self, x_or_sprite, y):
+        try:
+            x = x_or_sprite.x
+            y = x_or_sprite.y
+        except AttributeError:
+            x = x_or_sprite
+            y = y
+
+        max_x = max(sprite.x for sprite in self.sprites)
+        min_x = min(sprite.x for sprite in self.sprites)
+        max_y = max(sprite.y for sprite in self.sprites)
+        min_y = min(sprite.y for sprite in self.sprites)
+
+        center_x = (max_x - min_x) / 2
+        center_y = (min_y - max_y) / 2
+        offset_x = x - center_x
+        offset_y = y - center_y
+
+        for sprite in self.sprites:
+            sprite.x += offset_x
+            sprite.y += offset_y
+
+
+
+def new_group(*sprites):
+    return group(*sprites)
+
 def new_sprite(image=None, x=0, y=0, size=100, angle=0, transparency=100):
     return sprite(image=image, x=x, y=y, size=size, angle=angle, transparency=transparency)
 
