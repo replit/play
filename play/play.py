@@ -10,6 +10,7 @@ import pymunk as _pymunk
 import asyncio as _asyncio
 import random as _random
 import math as _math
+from statistics import mean as _mean
 
 from .keypress import pygame_key_to_name as _pygame_key_to_name # don't pollute user-facing namespace with library internals
 from .color import color_name_to_rgb as _color_name_to_rgb
@@ -220,6 +221,19 @@ class group(object):
         for sprite in self.sprites:
             sprite.hide()
 
+    @property 
+    def x(self):
+        return _mean(sprite.x for sprite in self.sprites)
+    @x.setter
+    def x(self, new_x):
+        x_offset = new_x - self.x
+        for sprite in self.sprites:
+            sprite.x += x_offset
+
+    @property 
+    def y(self):
+        return _mean(sprite.y for sprite in self.sprites)
+
     def go_to(self, x_or_sprite, y):
         try:
             x = x_or_sprite.x
@@ -349,6 +363,8 @@ If the file is in a folder, make sure you add the folder name, too.""") from exc
             if prev_x != _x:
                 # setting velocity makes the simulation more realistic usually
                 self.physics._pymunk_body.velocity = _x - prev_x, self.physics._pymunk_body.velocity.y
+            if self.physics._pymunk_body.body_type == _pymunk.Body.STATIC:
+                _physics_space.reindex_static()
 
     @property 
     def y(self):
@@ -362,6 +378,8 @@ If the file is in a folder, make sure you add the folder name, too.""") from exc
             if prev_y != _y:
                 # setting velocity makes the simulation more realistic usually
                 self.physics._pymunk_body.velocity = self.physics._pymunk_body.velocity.x, _y - prev_y
+            if self.physics._pymunk_body.body_type == _pymunk.Body.STATIC:
+                _physics_space.reindex_static()
 
     @property 
     def transparency(self):
@@ -555,12 +573,13 @@ You might want to look in your code where you're setting transparency and make s
     #     elif self.physics and name in :
     #         return setattr(self.physics, name, value)
 
-    def start_physics(self, can_move=True, can_turn=True, x_speed=0, y_speed=0, obeys_gravity=True, bottom_stop=True, sides_stop=True, top_stop=True, bounciness=1.0, mass=10, friction=.1):
+
+    def start_physics(self, can_move=True, is_stable=False, x_speed=0, y_speed=0, obeys_gravity=True, bottom_stop=True, sides_stop=True, top_stop=True, bounciness=1.0, mass=10, friction=.1):
         if not self.physics:
             self.physics = _Physics(
                 self,
                 can_move,
-                can_turn,
+                is_stable,
                 x_speed,
                 y_speed,
                 obeys_gravity,
@@ -579,10 +598,30 @@ You might want to look in your code where you're setting transparency and make s
 _SPEED_MULTIPLIER = 10
 class _Physics(object):
 
-    def __init__(self, sprite, can_move, can_turn, x_speed, y_speed, obeys_gravity, bottom_stop, sides_stop, top_stop, bounciness, mass, friction):
+    def __init__(self, sprite, can_move, is_stable, x_speed, y_speed, obeys_gravity, bottom_stop, sides_stop, top_stop, bounciness, mass, friction):
+        """
+
+        Examples of objects with the different parameters:
+
+            Blocks that can be knocked over (the default):
+                can_move = True
+                is_stable = False
+                obeys_gravity = True
+            Jumping platformer character:
+                can_move = True
+                is_stable = True
+                obeys_gravity = True
+            Moving platform:
+                can_move = True
+                is_stable = True
+                obeys_gravity = False
+            Stationary platform:
+                can_move = False
+                (others don't matter)
+        """
         self.sprite = sprite
         self._can_move = can_move
-        self._can_turn = can_turn
+        self._is_stable = is_stable
         self._x_speed = x_speed * _SPEED_MULTIPLIER
         self._y_speed = y_speed * _SPEED_MULTIPLIER
         self._obeys_gravity = obeys_gravity
@@ -603,7 +642,7 @@ class _Physics(object):
             self._pymunk_body = _physics_space.static_body.copy()
             self._pymunk_shape = _pymunk.Segment(self._pymunk_body, (self.sprite.x, self.sprite.y), (self.sprite.x1, self.sprite.y1), self.sprite.thickness)
         else:
-            if not self.can_turn:
+            if self.is_stable:
                 moment = _pymunk.inf
             elif isinstance(self.sprite, circle):
                 moment = _pymunk.moment_for_circle(mass, 0, self.sprite.radius, (0, 0))
@@ -612,7 +651,15 @@ class _Physics(object):
             else:
                 moment = _pymunk.moment_for_box(mass, (self.sprite.width, self.sprite.height))
 
-            body_type = _pymunk.Body.DYNAMIC if self.can_move else _pymunk.Body.STATIC
+            if self.can_move and not self.is_stable:
+                body_type = _pymunk.Body.DYNAMIC
+            elif self.can_move and self.is_stable:
+                if self.obeys_gravity or _physics_space.gravity == 0:
+                    body_type = _pymunk.Body.DYNAMIC
+                else:
+                    body_type = _pymunk.Body.KINEMATIC
+            else:
+                body_type = _pymunk.Body.STATIC
             self._pymunk_body = _pymunk.Body(mass, moment, body_type=body_type)
 
             if isinstance(self.sprite, line):
@@ -691,13 +738,13 @@ class _Physics(object):
         self._pymunk_shape.elasticity = _clamp(self._bounciness, 0, .99)
 
     @property 
-    def can_turn(self):
-        return self._can_turn
-    @can_turn.setter
-    def can_turn(self, _can_turn):
-        prev_can_turn = self._can_turn
-        self._can_turn = _can_turn
-        if self._can_turn != prev_can_turn:
+    def is_stable(self):
+        return self._is_stable
+    @is_stable.setter
+    def is_stable(self, _is_stable):
+        prev_is_stable = self._is_stable
+        self._is_stable = _is_stable
+        if self._is_stable != prev_is_stable:
             self.remove()
             self._make_pymunk()
 
