@@ -212,6 +212,14 @@ class group(object):
         for sprite in self.sprites:
             yield sprite
 
+    def show(self):
+        for sprite in self.sprites:
+            sprite.show()
+
+    def hide(self):
+        for sprite in self.sprites:
+            sprite.hide()
+
     def go_to(self, x_or_sprite, y):
         try:
             x = x_or_sprite.x
@@ -405,9 +413,13 @@ You might want to look in your code where you're setting transparency and make s
 
     def hide(self):
         self._is_hidden = True
+        if self.physics:
+            self.physics.pause()
 
     def show(self):
         self._is_hidden = False
+        if self.physics:
+            self.physics.unpause()
 
     def is_hidden(self):
         return self._is_hidden
@@ -633,13 +645,15 @@ class _Physics(object):
         return self.__class__(sprite=sprite, can_move=self.can_move, x_speed=self.x_speed,
             y_speed=self.y_speed, obeys_gravity=self.obeys_gravity)
 
+    def unpause(self):
+        _physics_space.add(self._pymunk_body, self._pymunk_shape)
+    def pause(self):
+        self.remove()
     def remove(self):
         if self._pymunk_body:
             _physics_space.remove(self._pymunk_body)
         if self._pymunk_shape:
             _physics_space.remove(self._pymunk_shape)
-        self._pymunk_body = None
-        self._pymunk_shape = None
 
     @property 
     def can_move(self):
