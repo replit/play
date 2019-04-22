@@ -1,10 +1,6 @@
 import os as _os
 import logging as _logging
 import warnings as _warnings
-def warning_format(message, category, filename, lineno, file=None, line=None):
-    return f'\n{category.__name__}... {message}\n'
-_warnings.formatwarning = warning_format
-
 
 import pygame
 import pygame.gfxdraw
@@ -17,6 +13,7 @@ import math as _math
 
 from .keypress import pygame_key_to_name as _pygame_key_to_name # don't pollute user-facing namespace with library internals
 from .color import color_name_to_rgb as _color_name_to_rgb
+from .exceptions import Oops, Hmm
 
 def _clamp(num, min_, max_):
     if num < min_:
@@ -25,14 +22,6 @@ def _clamp(num, min_, max_):
         return max_
     return num
 
-class Oops(Exception):
-    def __init__(self, message):
-        # for readability, always prepend exception messages in the library with two blank lines
-        message = '\n\n\tOops!\n\n\t'+message.replace('\n', '\n\t')+'\n'
-        super(Oops, self).__init__(message)
-
-class Hmm(UserWarning):
-    pass
 
 
 class _screen(object):
@@ -126,23 +115,23 @@ def debug(on_or_off):
     elif on_or_off == 'off':
         _debug = False
 
-background_color = (255, 255, 255)
-def set_background_color(color):
-    global background_color
+backdrop = (255, 255, 255)
+def set_backdrop(color_or_image_name):
+    global backdrop
 
-    # I chose to make set_background_color a function so that we can give
+    # I chose to make set_backdrop a function so that we can give
     # good error messages at the call site if a color isn't recognized.
-    # If we didn't have a function and just set background_color like this:
+    # If we didn't have a function and just set backdrop like this:
     #
-    #       play.background_color = 'gbluereen'
+    #       play.backdrop = 'gbluereen'
     #
     # then any errors resulting from that statement would appear somewhere
     # deep in this library instead of in the user code.
 
-    if type(color) == tuple:
-        background_color = color
-    else:
-        background_color = _color_name_to_rgb(color)
+    # this line will raise a useful exception
+    _color_name_to_rgb(color_or_image_name)
+
+    backdrop = color_or_image_name
 
 def random_number(lowest=0, highest=100):
     # if user supplies whole numbers, return whole numbers
@@ -170,6 +159,8 @@ def _raise_on_await_warning(func):
                     unawaited_function_name = str_message.split("'")[1]
                     raise Oops(f"""Looks like you forgot to put "await" before play.{unawaited_function_name} on line {warning.lineno} of file {warning.filename}.
 To fix this, just add the word 'await' before play.{unawaited_function_name} on line {warning.lineno} of file {warning.filename} in the function {func.__name__}.""")
+                else:
+                    print(warning.message)
     return f
 
 def _make_async(func):
@@ -297,8 +288,8 @@ If the file is in a folder, make sure you add the folder name, too.""") from exc
     @transparency.setter
     def transparency(self, alpha):
         if not isinstance(alpha, float) and not isinstance(alpha, int):
-            raise Oops(f"""Looks like you're trying to set {self._image}'s transparency to '{alpha}', which isn't a number.
-Try looking in your code for where you're setting transparency for {self._image} and change it a number.
+            raise Oops(f"""Looks like you're trying to set {self}'s transparency to '{alpha}', which isn't a number.
+Try looking in your code for where you're setting transparency for {self} and change it a number.
 """)
         if alpha > 100 or alpha < 0:
             _warnings.warn(f"""The transparency setting for {self} is being set to {alpha} and it should be between 0 and 100.
@@ -478,7 +469,7 @@ You might want to look in your code where you're setting transparency and make s
     #     elif self.physics and name in :
     #         return setattr(self.physics, name, value)
 
-    def start_physics(self, can_move=True, can_turn=True, x_speed=0, y_speed=0, obeys_gravity=True, bottom_stop=True, sides_stop=True, top_stop=True, bounciness=1.0, mass=10, friction=.5):
+    def start_physics(self, can_move=True, can_turn=True, x_speed=0, y_speed=0, obeys_gravity=True, bottom_stop=True, sides_stop=True, top_stop=True, bounciness=1.0, mass=10, friction=.1):
         if not self.physics:
             self.physics = _Physics(
                 self,
@@ -630,8 +621,8 @@ class _Physics(object):
 # vertical, horizontal
 gravity = -1000, 0
 _physics_space = _pymunk.Space()
-physics_space = _physics_space
 _physics_space.gravity = gravity[1], gravity[0]
+
 def set_gravity(vertical=-1000, horizontal=0):
     global gravity
     gravity = vertical, horizontal
@@ -1267,7 +1258,7 @@ def _game_loop():
 
 
 
-    _pygame_display.fill(_color_name_to_rgb(background_color))
+    _pygame_display.fill(_color_name_to_rgb(backdrop))
 
     # BACKGROUND COLOR
     # note: cannot use screen.fill((1, 1, 1)) because pygame's screen
@@ -1300,7 +1291,7 @@ def _game_loop():
                     sprite._x = body.position.x
                 if str(body.position.y) != 'nan':
                     sprite._y = body.position.y
-                    
+
             sprite.angle = angle # needs to be .angle, not ._angle so surface gets recalculated
             sprite.physics._x_speed, sprite.physics._y_speed = body.velocity
 

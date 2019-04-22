@@ -67,7 +67,7 @@ To try any of the following examples, go to **[repl.it and try pasting code in](
 
 The rest of this document is divided into the following sections:
 
-- [Basic Commands](#basic-commands) - Getting graphics, shapes, and text on the screen. Also changing the background.
+- [Basic Commands](#basic-commands) - Getting graphics, shapes, and text on the screen. Also changing the backdrop.
 - [Animation and Control Commands](#animation-and-control-commands) - Animating and controlling graphics, shapes, and text.
 - [Sprite Commands](#sprite-commands) - Controlling sprites.
 - [Mouse Commands](#mouse-commands) - Detecting mouse actions (clicks, movement).
@@ -118,22 +118,21 @@ This will put a black circle in the middle of the screen.
 
 
 
-#### `play.set_background_color()`
-You can change the background color with the `play.set_background_color()` command:
+#### `play.set_backdrop()`
+You can change the background color with the `play.set_backdrop()` command:
 
 ```python
-play.set_background_color('light blue')
+play.set_backdrop('light blue')
 ```
 
 There are [lots of named colors to choose from](https://upload.wikimedia.org/wikipedia/commons/2/2b/SVG_Recognized_color_keyword_names.svg). Additionally, if you want to set colors by RGB (Red Green Blue) values, you can do that like this:
 
 ```python
-# sets the background to white
-play.set_background_color( (255, 255, 255) )
-# each number can go from 0 to 255
+# Sets the background to white. Each number can go from 0 to 255
+play.set_backdrop( (255, 255, 255) )
 ```
 
-Anywhere you can set a color in Python Play, you can do it using a named color like `'red'` or an RGB value above like `(255, 255, 255)` or even an RGBA value like `(0, 0, 0, 127)` (the fourth number is transparency from 0 to 255). You can get the current background color with `play.background_color`.
+Anywhere you can set a color in Python Play, you can do it using a named color like `'red'` or an RGB value above like `(255, 255, 255)` or even an RGBA value like `(0, 0, 0, 127)` (the fourth number is transparency from 0 to 255). You can get the current background color with `play.backdrop`.
 
 
 
@@ -610,13 +609,13 @@ cat = play.new_text('=^.^=')
 # this code block uses async so it can use the 'await play.timer()' function
 @play.repeat_forever
 async def change_bg():
-    play.set_background_color('pink')
+    play.set_backdrop('pink')
     await play.timer(seconds=1)
 
-    play.set_background_color('purple')
+    play.set_backdrop('purple')
     await play.timer(seconds=1)
 
-    play.set_background_color('light blue')
+    play.set_backdrop('light blue')
     await play.timer(seconds=1)
 
 # this code block doesn't need async because it doesn't have `await play.timer()` or `await play.animate()`
@@ -627,7 +626,7 @@ def do():
 play.start_program()
 ```
 
-In the above program, the background will change and the cat will appear to turn at the same time even though the code is running single-threaded.
+In the above program, the backdrop will change and the cat will appear to turn at the same time even though the code is running single-threaded.
 
 The `async` keyword isn't necessary to write unless you want to use `await` functions. If you try to use an `await` command inside a non-async function, Python will show you an error like this:
 

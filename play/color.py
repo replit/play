@@ -1,3 +1,4 @@
+from .exceptions import Oops
 # most color names from https://upload.wikimedia.org/wikipedia/commons/2/2b/SVG_Recognized_color_keyword_names.svg
 # except that list doesn't have obvious colors people might want to use like "light brown", so we add those manually
 color_names = {
@@ -148,6 +149,7 @@ color_names = {
 'whitesmoke':           (245, 245, 245),
 'yellow':               (255, 255,   0),
 'yellowgreen':          (154, 205, 50),
+'transparent':          (  0,   0,  0, 255),
 }
 
 def color_name_to_rgb(name):
@@ -165,9 +167,7 @@ def color_name_to_rgb(name):
 
     try:
         return color_names[name.lower().strip().replace('-', '').replace(' ', '')]
-    except KeyError:
-        raise Exception(f"""
-
-You gave a color name we don't understand: '{name}'
+    except KeyError as exception:
+        raise Oops(f"""You gave a color name we didn't understand: '{name}'
 If this our mistake, please let us know. Otherwise, try using the RGB number form of the color e.g. '(0, 255, 255)'.
-You can find the RGB form of a color on websites like this: https://www.rapidtables.com/web/color/RGB_Color.html\n""")
+You can find the RGB form of a color on websites like this: https://www.rapidtables.com/web/color/RGB_Color.html\n""") from exception
