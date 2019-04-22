@@ -3,8 +3,8 @@ import logging as _logging
 import warnings as _warnings
 
 import pygame
-import pygame.gfxdraw
 pygame.init()
+import pygame.gfxdraw
 import pymunk as _pymunk
 
 import asyncio as _asyncio
@@ -144,6 +144,34 @@ def random_number(lowest=0, highest=100):
 def random_color():
     return (random_number(0, 255), random_number(0, 255), random_number(0, 255))
 
+class _Position(object):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    def __getitem__(self, indices):
+        if indices == 0:
+            return self.x
+        elif indices == 1:
+            return self.y
+        raise IndexError()
+    def __iter__(self):
+        yield self.x
+        yield self.y
+    def __len__(self):
+        return 2
+    def __setitem__(self, i, value):
+        if i == 0:
+            self.x = value
+        elif i == 1:
+            self.y = value
+        else:
+            raise IndexError()
+
+def random_position():
+    return _Position(
+        random_number(screen.left, screen.right),
+        random_number(screen.bottom, screen.top)
+    )
 
 def _raise_on_await_warning(func):
     """
@@ -1175,7 +1203,10 @@ def _game_loop():
 
     _clock.tick(60)
     for event in pygame.event.get():
-        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_q and (pygame.key.get_mods() & pygame.KMOD_META or pygame.key.get_mods() & pygame.KMOD_CTRL)):
+        if event.type == pygame.QUIT or (
+            event.type == pygame.KEYDOWN and event.key == pygame.K_q and (
+                pygame.key.get_mods() & pygame.KMOD_META or pygame.key.get_mods() & pygame.KMOD_CTRL
+        )):
             # quitting by clicking window's close button or pressing ctrl+q / command+q
             _loop.stop()
             return False
@@ -1391,6 +1422,7 @@ def repeat(number_of_times):
     return range(1, number_of_times+1)
 
 def start_program():
+    pygame.init()
     for func in _when_program_starts_callbacks:
         _loop.create_task(func())
 

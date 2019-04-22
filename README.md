@@ -569,6 +569,22 @@ play.random_color()
 
 Each value varies from 0 to 255.
 
+#### `play.random_color()`
+
+Returns a random position on the screen. A position object has an `x` and `y` component.
+
+```python
+text = play.text('WOO')
+@play.repeat_forever
+def do():
+    text.go_to(play.random_position())
+
+    # the above is equivalent to:
+    position = play.random_position()
+    text.x = position.x
+    text.y = position.y
+```
+
 #### `play.repeat()`
 
 `play.repeat()` is the same as Python's built-in `range` function, except it starts at 1. 'Repeat' is just a friendlier and more descriptive name than 'range'.
