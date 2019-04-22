@@ -234,6 +234,17 @@ class group(object):
             sprite.x += offset_x
             sprite.y += offset_y
 
+    @property
+    def right(self):
+        return max(sprite.right for sprite in self.sprites)
+
+    @property
+    def left(self):
+        return min(sprite.left for sprite in self.sprites)
+
+    @property 
+    def width(self):
+        return self.right - self.left
 
 
 def new_group(*sprites):
@@ -601,6 +612,9 @@ class _Physics(object):
 
             if self.can_move:
                 self._pymunk_body.velocity = (self._x_speed, self._y_speed)
+
+            if not self.obeys_gravity:
+                self._pymunk_body.velocity_func = lambda body, gravity, damping, dt: None
             
             if isinstance(self.sprite, circle):
                 self._pymunk_shape = _pymunk.Circle(self._pymunk_body, self.sprite.radius, (0,0))
@@ -680,6 +694,18 @@ class _Physics(object):
     def mass(self, _mass):
         self._mass = _mass
         self._pymunk_body.mass = _mass
+
+    @property 
+    def obeys_gravity(self):
+        return self._obeys_gravity
+    @obeys_gravity.setter
+    def obeys_gravity(self, _obeys_gravity):
+        self._obeys_gravity = _obeys_gravity
+        if _obeys_gravity:
+            print('hi')
+            self._pymunk_body.velocity_func = _pymunk.Body.update_velocity
+        else:
+            self._pymunk_body.velocity_func = lambda body, gravity, damping, dt: None
 
 # vertical, horizontal
 gravity = -1000, 0
