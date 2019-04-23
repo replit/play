@@ -26,5 +26,5 @@ setup(
     python_requires=">=3.5",
     packages=["play"],
     include_package_data=True,
-    install_requires=["pygame", "numpy"],
+    install_requires=["pygame", "numpy", "pymunk"],
 )
