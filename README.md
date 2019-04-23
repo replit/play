@@ -39,6 +39,8 @@ The code above makes a game where you have to click the cat to win:
 
 **[You can try playing and changing this game on repl.it!](https://repl.it/@glench/Python-Play-sample-game)**
 
+Python Play is an excellent choice for beginner programmers to get started with graphics programs. It was designed to be like [MIT's Scratch](https://scratch.mit.edu) and is distinguished from such projects as Pygame, Arcade, or Pygame Zero because of its easy-to-understand one-line commands and intuitive API. [Read more about its design here](#why-use-python-play).
+
 # How to install Python Play
 
 Run the following command in your terminal:
