@@ -291,8 +291,6 @@ Circle-sprite-only properties:
 If the circle has a border, the circle's total width, including the border, will be the width defined by the `radius` property.
 
 
-def new_line(color='black', x=0, y=0, length=None, angle=None, thickness=1, x1=None, y1=None, transparency=100, size=100):
-
 Line-sprite-only properties:
 - **`line.color`** — The line's color. The default is `black`.
 - **`line.length`** — How long the line is. Defaults to `100` (pixels).
