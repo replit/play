@@ -23,6 +23,15 @@ def _clamp(num, min_, max_):
         return max_
     return num
 
+def _point_touching_sprite(point, sprite):
+    # todo: custom code for circle, line, rotated rectangley sprites
+    return sprite.left <= point.x <= sprite.right and sprite.bottom <= point.y <= sprite.top
+
+def _sprite_touching_sprite(a, b):
+    # todo: custom code for circle, line, rotated rectangley sprites
+    if a.left >= b.right or a.right <= b.left or a.top <= b.bottom or a.bottom >= b.top: return False
+    return True
+
 
 
 class _screen(object):
@@ -63,6 +72,9 @@ class _mouse(object):
 
     def is_clicked(self):
         return self._is_clicked
+
+    def is_touching(self, other):
+        return _point_touching_sprite(self, other)
 
     # @decorator
     def when_clicked(self, func):
@@ -444,6 +456,13 @@ You might want to look in your code where you're setting transparency and make s
 
     def is_shown(self):
         return not self._is_hidden
+
+    def is_touching(self, sprite_or_point):
+        rect = self._secondary_pygame_surface.get_rect()
+        if isinstance(sprite_or_point, sprite):
+            return _sprite_touching_sprite(sprite_or_point, self)
+        else:
+            return _point_touching_sprite(sprite_or_point, self)
 
     def point_towards(self, x, y=None):
         try:
@@ -1452,12 +1471,10 @@ def _game_loop():
         # @sprite.when_clicked events
         #################################
         if mouse.is_clicked() and not type(sprite) == line:
-            # get_rect().collidepoint() is local coordinates, e.g. 100x100 image, so have to translate
-            if sprite._secondary_pygame_surface.get_rect().collidepoint((mouse.x+screen.width/2.)-sprite._pygame_x(), (screen.height/2.-mouse.y)-sprite._pygame_y()):
-                sprite._is_clicked = True
-
+            if _point_touching_sprite(mouse, sprite):
                 # only run sprite clicks on the frame the mouse was clicked
                 if click_happened_this_frame:
+                    sprite._is_clicked = True
                     for callback in sprite._when_clicked_callbacks:
                         if not callback.is_running:
                             _loop.create_task(callback())
@@ -1560,18 +1577,13 @@ def start_program():
 """
 cool stuff to add:
     @sprite.when_touched
-    sprite.is_touching(cat)
-    play.mouse.is_touching()
-    scene class, hide and show scenes in one go (collection of sprites)
 
-    sprite.glide_to(other_sprite, seconds=1)
-    dog.go_to(cat.bottom) # dog.go_to(cat.bottom+5)
     play sound / music
     play.music('jam.mp3', loop=False)
     play.stop_music('jam.mp3')
     play.sound('jam.mp3')
     play.volume = 2
-    play.background_image('backgrounds/waterfall.png', fit_to_screen=False, x=0,y=0)
+    play.set_backdrop('backgrounds/waterfall.png', fit_to_screen=False, x=0,y=0)
     sprite.flip(direction='left-right') sprite.flip(direction='up-down')
     sprite.flip(left_right=True, up_down=False)
 

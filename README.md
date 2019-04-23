@@ -317,6 +317,9 @@ Sprites also have some other useful info:
 - **`sprite.is_clicked()`** — Returns True if the sprite has just been clicked, otherwise returns False.
 - **`sprite.is_hidden()`** — Returns True if the sprite has been hidden with the `sprite.hide()` command. Otherwise returns False.
 - **`sprite.is_shown()`** — Returns True if the sprite has not been hidden with the `sprite.hide()` command. Otherwise returns False.
+- **`sprite.is_touching(other_sprite)`** — Returns True if the sprite is touching the other sprite. Otherwise returns False.
+- **`sprite.is_touching(point)`** — Returns True if the sprite is touching the point. For example: `sprite.is_touching(play.mouse)`
+
 
 
 
@@ -340,6 +343,7 @@ def do():
 - **`play.mouse.x`** — The horizontal x position of the mouse.
 - **`play.mouse.y`** — The vertical y position of the mouse.
 - **`play.mouse.is_clicked()`** — Returns `True` if the mouse is clicked down, or `False` if it's not.
+- **`play.mouse.is_touching(sprite)`** — Returns `True` if the mouse is touching a sprite, or `False` if it's not.
 
 
 
