@@ -549,10 +549,10 @@ The way to get information about the screen. `play.screen` has these properties:
 
 - `play.screen.width` - Defaults to 800 (pixels total).
 - `play.screen.height` - Defaults to 600 (pixels total).
-- `play.screen.left` - `x` coordinate for the left edge of the screen.
-- `play.screen.right` - `x` coordinate for the right edge of the screen.
-- `play.screen.top` - `y` coordinate for the top of the screen.
-- `play.screen.bottom` - `y` coordinate for the bottom of the screen.
+- `play.screen.left` - The `x` coordinate for the left edge of the screen.
+- `play.screen.right` - The `x` coordinate for the right edge of the screen.
+- `play.screen.top` - The `y` coordinate for the top of the screen.
+- `play.screen.bottom` - The `y` coordinate for the bottom of the screen.
 
 
 #### `play.all_sprites`
