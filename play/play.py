@@ -798,7 +798,6 @@ class _Physics(object):
     def obeys_gravity(self, _obeys_gravity):
         self._obeys_gravity = _obeys_gravity
         if _obeys_gravity:
-            print('hi')
             self._pymunk_body.velocity_func = _pymunk.Body.update_velocity
         else:
             self._pymunk_body.velocity_func = lambda body, gravity, damping, dt: None
@@ -806,6 +805,7 @@ class _Physics(object):
 # vertical, horizontal
 gravity = -1000, 0
 _physics_space = _pymunk.Space()
+_physics_space.sleep_time_threshold = 0.5 
 _physics_space.gravity = gravity[1], gravity[0]
 
 def set_gravity(vertical=-1000, horizontal=0):
@@ -1337,12 +1337,12 @@ def key_is_pressed(*keys):
             return True
     return False
 
+_NUM_SIMULATION_STEPS = 3
 def _simulate_physics():
     # more steps means more accurate simulation, but more processing time
-    NUM_SIMULATION_STEPS = 4
-    for _ in range(NUM_SIMULATION_STEPS):
+    for _ in range(_NUM_SIMULATION_STEPS):
         # the smaller the simulation step, the more accurate the simulation
-        _physics_space.step(1/(60.0*NUM_SIMULATION_STEPS))
+        _physics_space.step(1/(60.0*_NUM_SIMULATION_STEPS))
 
 _loop = _asyncio.get_event_loop()
 _loop.set_debug(False)
@@ -1577,7 +1577,6 @@ def repeat(number_of_times):
     return range(1, number_of_times+1)
 
 def start_program():
-    pygame.init()
     for func in _when_program_starts_callbacks:
         _loop.create_task(func())
 
