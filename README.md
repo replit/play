@@ -111,10 +111,19 @@ If you want to change the font, you'll need a font file (usually named something
 
 #### `play.new_circle()`
 ```python
-new_circle = play.new_circle(color='black', x=0, y=0, radius=100, border_color="light blue", border_width=0)
+ball = play.new_circle(color='black', x=0, y=0, radius=100, border_color="light blue", border_width=0, transparency=100)
 ```
 
 This will put a black circle in the middle of the screen.
+
+
+
+#### `play.new_line()`
+```python
+line = play.new_line(color='black', x=0, y=0, length=100, angle=0, thickness=1, x1=None, y1=None)
+```
+
+This will create a thin line on the screen.
 
 
 
@@ -278,6 +287,18 @@ Circle-sprite-only properties:
 - **`circle.border_color`** — The color of the circle's border. The default is `'light blue'`.
 
 If the circle has a border, the circle's total width, including the border, will be the width defined by the `radius` property.
+
+
+def new_line(color='black', x=0, y=0, length=None, angle=None, thickness=1, x1=None, y1=None, transparency=100, size=100):
+
+Line-sprite-only properties:
+- **`line.color`** — The line's color. The default is `black`.
+- **`line.length`** — How long the line is. Defaults to `100` (pixels).
+- **`line.angle`** — The angle the line points in. Defaults to `0` (degrees).
+- **`line.x1`** — The `x` coordinate of the end of the line.
+- **`line.y1`** — The `y` coordinate of the end of the line.
+
+For lines, the `x` and `y` coordinates are where the start of the line is. You can set either the `length` and `angle` or the `x1` and `y1` properties to change where the line points. If you update one, the others will be updated automatically.
 
 
 
