@@ -180,7 +180,7 @@ class _Position(object):
         else:
             raise IndexError()
 
-def random_position():
+def random_place():
     return _Position(
         random_number(screen.left, screen.right),
         random_number(screen.bottom, screen.top)
