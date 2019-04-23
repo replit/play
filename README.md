@@ -547,8 +547,8 @@ def do(key):
 
 The way to get information about the screen. `play.screen` has these properties:
 
-- `play.screen.width` - Defaults to 800 (pixels total). 
-- `play.screen.height` - Defaults to 600 (pixels total). Changing `play.screen.width` and `play.screen.height` will change the screen's size.
+- `play.screen.width` - Defaults to 800 (pixels total). Changing this will change the screen's size.
+- `play.screen.height` - Defaults to 600 (pixels total). Changing this will change the screen's size.
 - `play.screen.left` - The `x` coordinate for the left edge of the screen.
 - `play.screen.right` - The `x` coordinate for the right edge of the screen.
 - `play.screen.top` - The `y` coordinate for the top of the screen.
