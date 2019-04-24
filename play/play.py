@@ -196,7 +196,16 @@ class _Position(object):
         else:
             raise IndexError()
 
-def random_place():
+def random_position():
+    """
+    Returns a random position on the screen. A position has an `x` and `y` e.g.:
+        position = play.random_position()
+        sprite.x = position.x
+        sprite.y = position.y
+
+    or equivalently:
+        sprite.go_to(play.random_position())
+    """
     return _Position(
         random_number(screen.left, screen.right),
         random_number(screen.bottom, screen.top)
@@ -233,9 +242,46 @@ def _make_async(func):
         return func(*args, **kwargs)
     return async_func
 
-class group(object):
+class Group(object):
+    """
+    A way to group sprites together. A group can either be made like this:
+
+        class button(play.Group):
+            bg = play.new_box(width=60, height=30)
+            text = play.new_text('hi')
+
+    or like this:
+
+        bg = play.new_box(width=60, height=30)
+        text = play.new_text('hi')
+        button = play.new_group(bg, text)
+
+    TODO:
+        - Button.move() (make work with instance or class)
+        - Button.angle = 10 (sets all sprite's angles to 10 in group)
+        - for sprite in Button: (make iteration work)
+        - play.new_group(bg=bg, text=text) (add keyword args)
+        - group.append(), group.remove()?
+    """
     def __init__(self, *sprites):
-        self.sprites = sprites
+        self.sprites_ = sprites
+
+
+    @classmethod
+    def sprites(cls):
+        for item in cls.__dict__.values():
+            # items added via class variables, e.g.
+            # class Button(play.Group):
+            #     text = play.new_text('click me')
+            if isinstance(item, Sprite):
+                yield item
+
+    def sprites(self):
+        for sprite in self.sprites_:
+            yield sprite
+        print(self.__class__.sprites)
+        for sprite in type(self).sprites():
+            yield sprite
 
     def __iter__(self):
         for sprite in self.sprites:
@@ -249,18 +295,27 @@ class group(object):
         for sprite in self.sprites:
             sprite.hide()
 
+    @classmethod
+    def move(cls):
+        for sprite in cls.sprites():
+            sprite.move()
+
+    def move(self):
+        for sprite in self.sprites():
+            sprite.move()
+
     @property 
     def x(self):
-        return _mean(sprite.x for sprite in self.sprites)
+        return _mean(sprite.x for sprite in self)
     @x.setter
     def x(self, new_x):
         x_offset = new_x - self.x
-        for sprite in self.sprites:
+        for sprite in self:
             sprite.x += x_offset
 
     @property 
     def y(self):
-        return _mean(sprite.y for sprite in self.sprites)
+        return _mean(sprite.y for sprite in self)
 
     def go_to(self, x_or_sprite, y):
         try:
@@ -270,27 +325,27 @@ class group(object):
             x = x_or_sprite
             y = y
 
-        max_x = max(sprite.x for sprite in self.sprites)
-        min_x = min(sprite.x for sprite in self.sprites)
-        max_y = max(sprite.y for sprite in self.sprites)
-        min_y = min(sprite.y for sprite in self.sprites)
+        max_x = max(sprite.x for sprite in self)
+        min_x = min(sprite.x for sprite in self)
+        max_y = max(sprite.y for sprite in self)
+        min_y = min(sprite.y for sprite in self)
 
         center_x = (max_x - min_x) / 2
         center_y = (min_y - max_y) / 2
         offset_x = x - center_x
         offset_y = y - center_y
 
-        for sprite in self.sprites:
+        for sprite in self:
             sprite.x += offset_x
             sprite.y += offset_y
 
     @property
     def right(self):
-        return max(sprite.right for sprite in self.sprites)
+        return max(sprite.right for sprite in self)
 
     @property
     def left(self):
-        return min(sprite.left for sprite in self.sprites)
+        return min(sprite.left for sprite in self)
 
     @property 
     def width(self):
@@ -298,12 +353,12 @@ class group(object):
 
 
 def new_group(*sprites):
-    return group(*sprites)
+    return Group(*sprites)
 
 def new_sprite(image=None, x=0, y=0, size=100, angle=0, transparency=100):
-    return sprite(image=image, x=x, y=y, size=size, angle=angle, transparency=transparency)
+    return Sprite(image=image, x=x, y=y, size=size, angle=angle, transparency=transparency)
 
-class sprite(object):
+class Sprite(object):
     def __init__(self, image=None, x=0, y=0, size=100, angle=0, transparency=100):
         self._image = image or _os.path.join(_os.path.split(__file__)[0], 'blank_image.png')
         self._x = x
@@ -475,7 +530,7 @@ You might want to look in your code where you're setting transparency and make s
 
     def is_touching(self, sprite_or_point):
         rect = self._secondary_pygame_surface.get_rect()
-        if isinstance(sprite_or_point, sprite):
+        if isinstance(sprite_or_point, Sprite):
             return _sprite_touching_sprite(sprite_or_point, self)
         else:
             return _point_touching_sprite(sprite_or_point, self)
@@ -609,7 +664,7 @@ You might want to look in your code where you're setting transparency and make s
     #         return setattr(self.physics, name, value)
 
 
-    def start_physics(self, can_move=True, stable=False, x_speed=0, y_speed=0, obeys_gravity=True, bottom_stop=True, sides_stop=True, top_stop=True, bounciness=1.0, mass=10, friction=.1):
+    def start_physics(self, can_move=True, stable=False, x_speed=0, y_speed=0, obeys_gravity=True, bounciness=1.0, mass=10, friction=.1):
         if not self.physics:
             self.physics = _Physics(
                 self,
@@ -618,9 +673,6 @@ You might want to look in your code where you're setting transparency and make s
                 x_speed,
                 y_speed,
                 obeys_gravity,
-                bottom_stop,
-                sides_stop,
-                top_stop,
                 bounciness,
                 mass,
                 friction,
@@ -633,7 +685,7 @@ You might want to look in your code where you're setting transparency and make s
 _SPEED_MULTIPLIER = 10
 class _Physics(object):
 
-    def __init__(self, sprite, can_move, stable, x_speed, y_speed, obeys_gravity, bottom_stop, sides_stop, top_stop, bounciness, mass, friction):
+    def __init__(self, sprite, can_move, stable, x_speed, y_speed, obeys_gravity, bounciness, mass, friction):
         """
 
         Examples of objects with the different parameters:
@@ -644,7 +696,7 @@ class _Physics(object):
                 obeys_gravity = True
             Jumping platformer character:
                 can_move = True
-                stable = True
+                stable = True (doesn't fall over)
                 obeys_gravity = True
             Moving platform:
                 can_move = True
@@ -660,9 +712,6 @@ class _Physics(object):
         self._x_speed = x_speed * _SPEED_MULTIPLIER
         self._y_speed = y_speed * _SPEED_MULTIPLIER
         self._obeys_gravity = obeys_gravity
-        self._bottom_stop = bottom_stop
-        self._sides_stop = sides_stop
-        self._top_stop = top_stop
         self._bounciness = bounciness
         self._mass = mass
         self._friction = friction
@@ -679,7 +728,7 @@ class _Physics(object):
         else:
             if self.stable:
                 moment = _pymunk.inf
-            elif isinstance(self.sprite, circle):
+            elif isinstance(self.sprite, Circle):
                 moment = _pymunk.moment_for_circle(mass, 0, self.sprite.radius, (0, 0))
             elif isinstance(self.sprite, line):
                 moment = _pymunk.moment_for_box(mass, (self.sprite.length, self.sprite.thickness))
@@ -710,7 +759,7 @@ class _Physics(object):
             if not self.obeys_gravity:
                 self._pymunk_body.velocity_func = lambda body, gravity, damping, dt: None
             
-            if isinstance(self.sprite, circle):
+            if isinstance(self.sprite, Circle):
                 self._pymunk_shape = _pymunk.Circle(self._pymunk_body, self.sprite.radius, (0,0))
             elif isinstance(self.sprite, line):
                 self._pymunk_shape = _pymunk.Segment(self._pymunk_body, (self.sprite.x, self.sprite.y), (self.sprite.x1, self.sprite.y1), self.sprite.thickness)
@@ -828,7 +877,7 @@ _physics_space.add(_walls)
 def new_box(color='black', x=0, y=0, width=100, height=200, border_color='light blue', border_width=0, angle=0, transparency=100, size=100):
     return box(color=color, x=x, y=y, width=width, height=height, border_color=border_color, border_width=border_width, angle=angle, transparency=transparency, size=size)
 
-class box(sprite):
+class box(Sprite):
     def __init__(self, color='black', x=0, y=0, width=100, height=200, border_color='light blue', border_width=0, transparency=100, size=100, angle=0):
         self._x = x
         self._y = y
@@ -923,10 +972,10 @@ class box(sprite):
         return self.__class__(color=self.color, width=self.width, height=self.height, border_color=self.border_color, border_width=self.border_width, **self._common_properties())
 
 def new_circle(color='black', x=0, y=0, radius=100, border_color='light blue', border_width=0, transparency=100, size=100, angle=0):
-    return circle(color=color, x=x, y=y, radius=radius, border_color=border_color, border_width=border_width,
+    return Circle(color=color, x=x, y=y, radius=radius, border_color=border_color, border_width=border_width,
         transparency=transparency, size=size, angle=angle)
 
-class circle(sprite):
+class Circle(Sprite):
     def __init__(self, color='black', x=0, y=0, radius=100, border_color='light blue', border_width=0, transparency=100, size=100, angle=0):
         self._x = x
         self._y = y
@@ -1014,7 +1063,7 @@ class circle(sprite):
 def new_line(color='black', x=0, y=0, length=None, angle=None, thickness=1, x1=None, y1=None, transparency=100, size=100):
     return line(color=color, x=x, y=y, length=length, angle=angle, thickness=thickness, x1=x1, y1=y1, transparency=transparency, size=size)
 
-class line(sprite):
+class line(Sprite):
     def __init__(self, color='black', x=0, y=0, length=None, angle=None, thickness=1, x1=None, y1=None, transparency=100, size=100):
         self._x = x
         self._y = y
@@ -1159,7 +1208,7 @@ class line(sprite):
 def new_text(words='hi :)', x=0, y=0, font=None, font_size=50, color='black', angle=0, transparency=100, size=100):
     return text(words=words, x=x, y=y, font=font, font_size=font_size, color=color, angle=angle, transparency=transparency, size=size)
 
-class text(sprite):
+class text(Sprite):
     def __init__(self, words='hi :)', x=0, y=0, font=None, font_size=50, color='black', angle=0, transparency=100, size=100):
         self._words = words
         self._x = x

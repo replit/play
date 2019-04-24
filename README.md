@@ -594,7 +594,7 @@ play.random_color()
 
 Each value varies from 0 to 255.
 
-#### `play.random_place()`
+#### `play.random_position()`
 
 Returns a random position on the screen. A position object has an `x` and `y` component.
 
@@ -602,10 +602,10 @@ Returns a random position on the screen. A position object has an `x` and `y` co
 text = play.text('WOO')
 @play.repeat_forever
 def do():
-    text.go_to(play.random_place())
+    text.go_to(play.random_position())
 
     # the above is equivalent to:
-    position = play.random_place()
+    position = play.random_position()
     text.x = position.x
     text.y = position.y
 ```
