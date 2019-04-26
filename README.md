@@ -554,7 +554,7 @@ Python Play uses the [Pymunk](http://www.pymunk.org/en/master/) physics library 
 To turn a sprite into a physics object, use the `start_physics()` command:
 
 ```python
-    sprite.start_physics(can_move=True, stable=False, x_speed=0, y_speed=0, obeys_gravity=True, bounciness=1, mass=10, friction=0.1)
+sprite.start_physics(can_move=True, stable=False, x_speed=0, y_speed=0, obeys_gravity=True, bounciness=1, mass=10, friction=0.1)
 ```
 
 This will cause the sprite to start being affected by gravity, collide with other sprites that have physics, and more.
