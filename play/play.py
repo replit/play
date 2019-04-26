@@ -29,6 +29,8 @@ def _point_touching_sprite(point, sprite):
 
 def _sprite_touching_sprite(a, b):
     # todo: custom code for circle, line, rotated rectangley sprites
+    # use physics engine if both sprites have physics on
+    # if a.physics and b.physics:
     if a.left >= b.right or a.right <= b.left or a.top <= b.bottom or a.bottom >= b.top: return False
     return True
 
@@ -511,6 +513,9 @@ You might want to look in your code where you're setting transparency and make s
     def size(self, percent):
         self._size = percent
         self._should_recompute_secondary_surface = True
+        if self.physics:
+            self.physics.remove()
+            self.physics._make_pymunk()
 
     def hide(self):
         self._is_hidden = True
