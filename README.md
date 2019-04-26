@@ -565,13 +565,15 @@ This will cause the sprite to start being affected by gravity, collide with othe
 Once `sprite.start_physics()` has been called, the sprite will have a `sprite.physics` property. `sprite.physics` has the following properties:
 
 - **`sprite.physics.can_move`** — Whether the sprite can move around the screen (`True`) or is stuck in place (`False`). Defaults to `True`.
-- **`sprite.physics.stable`** — Whether the sprite is a stable object (one that can be knocked about). A pong paddle is a stable object (`True`) but a box or ball that can be knocked around is not (`False`). Defaults to `False`.
+- **`sprite.physics.stable`** — Whether the sprite is a stable object (one that can't be knocked about). A pong paddle is a stable object (`True`) but a box or ball that can be knocked around is not (`False`). Defaults to `False`.
 - **`sprite.physics.x_speed`** — How fast the sprite is moving horizontally (negative numbers mean the sprite moves to the left and positive numbers mean the sprite moves to the right). Defaults to `0`.
 - **`sprite.physics.y_speed`** — How fast the sprite is moving vertically (negative numbers mean the sprite moves down and positive numbers mean the sprite moves up). Defaults to `0`.
 - **`sprite.physics.obeys_gravity`** — If the sprite is affected by gravity. Defaults to `True`.
 - **`sprite.physics.bounciness`** — How bouncy the sprite is from 0 (doesn't bounce at all) to 1 (bounces a lot). Defaults to `1`.
 - **`sprite.physics.mass`** — How heavy the sprite is. Defaults to `10`. Heavier objects will knock lighter objects around more.
 - **`sprite.physics.friction`** — How much the sprite slides around on other objects. Starts at 0 (slides like on ice) to big numbers (very rough sprite that doesn't slide at all). Defaults to `0.1`.
+
+Try experimenting with all these properties if you don't fully understand them.
 
 `sprite.physics` also has two commands that could be helpful:
 
