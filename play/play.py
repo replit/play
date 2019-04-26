@@ -514,7 +514,7 @@ You might want to look in your code where you're setting transparency and make s
         self._size = percent
         self._should_recompute_secondary_surface = True
         if self.physics:
-            self.physics.remove()
+            self.physics._remove()
             self.physics._make_pymunk()
 
     def hide(self):
@@ -588,7 +588,7 @@ You might want to look in your code where you're setting transparency and make s
 
     def remove(self):
         if self.physics:
-            self.physics.remove()
+            self.physics._remove()
         all_sprites.remove(self)
 
     @property 
@@ -669,7 +669,7 @@ You might want to look in your code where you're setting transparency and make s
     #         return setattr(self.physics, name, value)
 
 
-    def start_physics(self, can_move=True, stable=False, x_speed=0, y_speed=0, obeys_gravity=True, bounciness=1.0, mass=10, friction=.1):
+    def start_physics(self, can_move=True, stable=False, x_speed=0, y_speed=0, obeys_gravity=True, bounciness=1.0, mass=10, friction=0.1):
         if not self.physics:
             self.physics = _Physics(
                 self,
@@ -684,7 +684,7 @@ You might want to look in your code where you're setting transparency and make s
             )
 
     def stop_physics(self):
-        self.physics.remove()
+        self.physics._remove()
         self.physics = None
 
 _SPEED_MULTIPLIER = 10
@@ -781,11 +781,12 @@ class _Physics(object):
         return self.__class__(sprite=sprite, can_move=self.can_move, x_speed=self.x_speed,
             y_speed=self.y_speed, obeys_gravity=self.obeys_gravity)
 
-    def unpause(self):
-        _physics_space.add(self._pymunk_body, self._pymunk_shape)
     def pause(self):
-        self.remove()
-    def remove(self):
+        self._remove()
+    def unpause(self):
+        if not self._pymunk_body and not self._pymunk_shape:
+            _physics_space.add(self._pymunk_body, self._pymunk_shape)
+    def _remove(self):
         if self._pymunk_body:
             _physics_space.remove(self._pymunk_body)
         if self._pymunk_shape:
@@ -799,7 +800,7 @@ class _Physics(object):
         prev_can_move = self._can_move
         self._can_move = _can_move
         if prev_can_move != _can_move:
-            self.remove()
+            self._remove()
             self._make_pymunk()
 
     @property 
@@ -834,7 +835,7 @@ class _Physics(object):
         prev_stable = self._stable
         self._stable = _stable
         if self._stable != prev_stable:
-            self.remove()
+            self._remove()
             self._make_pymunk()
 
     @property 
@@ -856,16 +857,23 @@ class _Physics(object):
         else:
             self._pymunk_body.velocity_func = lambda body, gravity, damping, dt: None
 
+class _Gravity(object):
+    vertical = -100 * _SPEED_MULTIPLIER
+    horizontal = 0
+
 # vertical, horizontal
-gravity = -1000, 0
+gravity = _Gravity()
 _physics_space = _pymunk.Space()
 _physics_space.sleep_time_threshold = 0.5 
-_physics_space.gravity = gravity[1], gravity[0]
+_physics_space.gravity = gravity.horizontal, gravity.vertical
 
-def set_gravity(vertical=-1000, horizontal=0):
+def set_gravity(vertical=-100, horizontal=None):
     global gravity
-    gravity = vertical, horizontal
-    _physics_space.gravity = gravity[1], gravity[0]
+    gravity.vertical = vertical*_SPEED_MULTIPLIER,
+    if graivty.horizontal != None:
+        gravity.horizontal horizontal*_SPEED_MULTIPLIER
+
+    _physics_space.gravity = gravity.horizontal, gravity.vertical
 
 _walls = [
     _pymunk.Segment(_physics_space.static_body, [screen.left, screen.top], [screen.right, screen.top], 0.0), # top

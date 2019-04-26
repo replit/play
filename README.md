@@ -74,6 +74,7 @@ The rest of this document is divided into the following sections:
 - [Sprite Commands](#sprite-commands) - Controlling sprites.
 - [Mouse Commands](#mouse-commands) - Detecting mouse actions (clicks, movement).
 - [Keyboard Commands](#keyboard-commands) - Detecting keyboard actions.
+- [Physics Commands](#physics-commands) - Making physics objects.
 - [Other Useful Commands](#other-useful-commands) - General commands.
 - [Why use Python Play?](#why-use-python-play) - How this library is different from other graphics libraries.
 
@@ -244,6 +245,8 @@ Sprites (images and text) have a few simple commands:
 - **`sprite.show()`** — Shows `sprite` if it's hidden.
 - **`sprite.clone()`** — Makes a copy or clone of the sprite and returns it.
 - **`sprite.remove()`** — Removes a sprite from the screen permanently. Calling sprite commands on a removed sprite won't do anything.
+- **`sprite.start_physics()`** — Turn on physics for a sprite. See the [Physics Commands section](#physics-commands) for details.
+- **`sprite.stop_physics()`** — Turn off physics for a sprite. See the [Physics Commands section](#physics-commands) for details.
 
 
 #### Properties
@@ -259,6 +262,7 @@ Sprites also have properties that can be changed to change how the sprite looks.
 - **`sprite.right`** — The x position of the right-most part of the sprite.
 - **`sprite.top`** — The y position of the top-most part of the sprite.
 - **`sprite.bottom`** — The y position of the bottom-most part of the sprite.
+- **`sprite.physics`** — Contains the physics properties of an object if physics has been turned on. The default is `None`. See the [Physics Commands section](#physics-commands) for details.
 
 
 
@@ -338,8 +342,8 @@ Sprites also have some other useful info:
 - **`sprite.is_clicked()`** — Returns True if the sprite has just been clicked, otherwise returns False.
 - **`sprite.is_hidden()`** — Returns True if the sprite has been hidden with the `sprite.hide()` command. Otherwise returns False.
 - **`sprite.is_shown()`** — Returns True if the sprite has not been hidden with the `sprite.hide()` command. Otherwise returns False.
-- **`sprite.is_touching(other_sprite)`** — Returns True if the sprite is touching the other sprite. Otherwise returns False.
-- **`sprite.is_touching(point)`** — Returns True if the sprite is touching the point. For example: `sprite.is_touching(play.mouse)`
+- **`sprite.is_touching(other_sprite)`** — Returns True if `sprite` is touching the `other_sprite`. Otherwise returns False.
+- **`sprite.is_touching(point)`** — Returns True if the sprite is touching the point (anything with an `x` and `y` coordinate). For example: `sprite.is_touching(play.mouse)`
 
 
 
@@ -538,6 +542,67 @@ text = play.new_text('')
 def do(key):
     text.words = f'{key} key released!''
 ```
+
+
+
+## Physics Commands
+
+Python Play uses the [Pymunk](http://www.pymunk.org/en/master/) physics library to turn sprites into physics objects that can collide with each other, fall with gravity, and more.
+
+### `sprite.start_physics()`
+
+To turn a sprite into a physics object, use the `start_physics()` command:
+
+```python
+    sprite.start_physics(can_move=True, stable=False, x_speed=0, y_speed=0, obeys_gravity=True, bounciness=1, mass=10, friction=0.1)
+```
+
+This will cause the sprite to start being affected by gravity, collide with other sprites that have physics, and more.
+
+
+### `sprite.physics` properties
+
+Once `sprite.start_physics()` has been called, the sprite will have a `sprite.physics` property. `sprite.physics` has the following properties:
+
+- **`sprite.physics.can_move`** — Whether the sprite can move around the screen (`True`) or is stuck in place (`False`). Defaults to `True`.
+- **`sprite.physics.stable`** — Whether the sprite is a stable object (one that can be knocked about). A pong paddle is a stable object (`True`) but a box or ball that can be knocked around is not (`False`). Defaults to `False`.
+- **`sprite.physics.x_speed`** — How fast the sprite is moving horizontally (negative numbers mean the sprite moves to the left and positive numbers mean the sprite moves to the right). Defaults to `0`.
+- **`sprite.physics.y_speed`** — How fast the sprite is moving vertically (negative numbers mean the sprite moves down and positive numbers mean the sprite moves up). Defaults to `0`.
+- **`sprite.physics.obeys_gravity`** — If the sprite is affected by gravity. Defaults to `True`.
+- **`sprite.physics.bounciness`** — How bouncy the sprite is from 0 (doesn't bounce at all) to 1 (bounces a lot). Defaults to `1`.
+- **`sprite.physics.mass`** — How heavy the sprite is. Defaults to `10`. Heavier objects will knock lighter objects around more.
+- **`sprite.physics.friction`** — How much the sprite slides around on other objects. Starts at 0 (slides like on ice) to big numbers (very rough sprite that doesn't slide at all). Defaults to `0.1`.
+
+`sprite.physics` also has two commands that could be helpful:
+
+- **`sprite.physics.pause()`** — Temporarily stop the sprite from being a physics object. The sprite's speed and other physics properties will be saved until the `unpause()` command is used.
+- **`sprite.physics.unpause()`** — Resume physics on a sprite that has been paused. It will continue with the exact speed and physics settings it had before `physics.pause()` was called.
+
+Calling `sprite.stop_physics()` will immediately stop the sprite from moving and colliding and `sprite.physics` will be set to `None`.
+
+
+### `sprite.stop_physics()`
+
+To get a sprite to stop moving around and colliding, you can call `sprite.stop_physics`:
+
+```python
+sprite.stop_physics()
+```
+
+This will immediately stop the sprite.
+
+
+### `play.set_gravity()`
+
+To set how much gravity there is for sprites that have had `start_physics()` called on them, use the `play.set_gravity()` command:
+
+```python
+play.set_gravity(vertical=-100, horizontal=None)
+```
+
+You can access the current gravity with `play.gravity.vertical` (default is `-100`) and `play.gravity.horizontal` (default is `0`).
+
+
 
 
 ## Other Useful Commands
