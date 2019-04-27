@@ -258,6 +258,8 @@ Sprites also have properties that can be changed to change how the sprite looks.
 - **`sprite.size`** — How big the sprite is. The default is 100, but it can be made bigger or smaller.
 - **`sprite.angle`** — How much the sprite is turned. Positive numbers are counter-clockwise. The default is 0 degrees (pointed to the right).
 - **`sprite.transparency`** — How see-through the sprite is from 0 to 100. 0 is completely see-through, 100 is not see-through at all. The default is 100.
+- **`sprite.is_hidden`** — `True` if the sprite has been hidden with the `sprite.hide()` command. Otherwise `False`.
+- **`sprite.is_shown`** — `True` if the sprite has not been hidden with the `sprite.hide()` command. Otherwise `False`.
 - **`sprite.left`** — The x position of the left-most part of the sprite.
 - **`sprite.right`** — The x position of the right-most part of the sprite.
 - **`sprite.top`** — The y position of the top-most part of the sprite.
@@ -339,10 +341,8 @@ Sprites also have some other useful info:
 - **`sprite.height`** — Gets how tall the sprite is in pixels.
 - **`sprite.distance_to(other_sprite)`** — Gets the distance in pixels to `other_sprite`.
 - **`sprite.distance_to(x=100, y=100)`** — Gets the distance to the point x=100, y=100.
-- **`sprite.is_clicked()`** — Returns True if the sprite has just been clicked, otherwise returns False.
-- **`sprite.is_hidden()`** — Returns True if the sprite has been hidden with the `sprite.hide()` command. Otherwise returns False.
-- **`sprite.is_shown()`** — Returns True if the sprite has not been hidden with the `sprite.hide()` command. Otherwise returns False.
-- **`sprite.is_touching(other_sprite)`** — Returns True if `sprite` is touching the `other_sprite`. Otherwise returns False.
+- **`sprite.is_clicked`** — `True` if the sprite has just been clicked, otherwise `False`.
+- **`sprite.is_touching(other_sprite)`** — Returns True if `sprite` is touching the `other_sprite`. Otherwise `False`.
 - **`sprite.is_touching(point)`** — Returns True if the sprite is touching the point (anything with an `x` and `y` coordinate). For example: `sprite.is_touching(play.mouse)`
 
 
@@ -367,7 +367,7 @@ def do():
 
 - **`play.mouse.x`** — The horizontal x position of the mouse.
 - **`play.mouse.y`** — The vertical y position of the mouse.
-- **`play.mouse.is_clicked()`** — Returns `True` if the mouse is clicked down, or `False` if it's not.
+- **`play.mouse.is_clicked`** — `True` if the mouse is clicked down, or `False` if it's not.
 - **`play.mouse.is_touching(sprite)`** — Returns `True` if the mouse is touching a sprite, or `False` if it's not.
 
 
@@ -573,7 +573,7 @@ Once `sprite.start_physics()` has been called, the sprite will have a `sprite.ph
 - **`sprite.physics.mass`** — How heavy the sprite is. Defaults to `10`. Heavier objects will knock lighter objects around more.
 - **`sprite.physics.friction`** — How much the sprite slides around on other objects. Starts at 0 (slides like on ice) to big numbers (very rough sprite that doesn't slide at all). Defaults to `0.1`.
 
-Try experimenting with all these properties if you don't fully understand them.
+Changing any of these properties will immediately change how the sprite acts as a physics object. Try experimenting with all these properties if you don't fully understand them.
 
 `sprite.physics` also has two commands that could be helpful:
 
@@ -750,7 +750,7 @@ If you don't understand any of this, it's generally safe to just include `async`
 
 ## Why use Python Play?
 
-Python Play was designed to be an excellent starting point for brand new programmers. The goal of the project is to give someone that has never programmed before a compelling and succesful experience in their first few minutes of programming. We aimed to make graphics programming as accessible as possible to as young an audience as possible.
+Python Play was designed to be an excellent starting point for brand new programmers. The goal of the project is to give someone that has never programmed before a compelling and successful experience in their first few minutes of programming. We aimed to make graphics programming as accessible as possible to as young an audience as possible.
 
 We found that many existing programming languages and graphics libraries presented unnecessary difficulties for new programmers — difficulties making simple things happen, confusing language, confusing program flow, unexplained concepts, etc. We know that even one initial disagreeable experience can turn people away from programming forever, and we wanted to prevent that outcome as much as possible.
 

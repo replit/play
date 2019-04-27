@@ -88,7 +88,13 @@ class _mouse(object):
         self._when_clicked_callbacks = []
         self._when_click_released_callbacks = []
 
+    @property
     def is_clicked(self):
+        # this is a property instead of a method because if a new programmer does:
+        #    if play.mouse.is_clicked:
+        #        ...
+        # and is_clicked is a method (they forgot the parens), then it will always
+        # return True. Better to eliminate the need for parens.
         return self._is_clicked
 
     def is_touching(self, other):
@@ -425,6 +431,7 @@ If the file is in a folder, make sure you add the folder name, too.""") from exc
 
         self._should_recompute_secondary_surface = False
 
+    @property
     def is_clicked(self):
         return self._is_clicked
 
@@ -527,11 +534,21 @@ You might want to look in your code where you're setting transparency and make s
         if self.physics:
             self.physics.unpause()
 
+    @property
     def is_hidden(self):
         return self._is_hidden
 
+    @is_hidden.setter
+    def is_hidden(self, hide):
+        self._is_hidden = hide
+
+    @property
     def is_shown(self):
         return not self._is_hidden
+
+    @is_shown.setter
+    def is_shown(self, show):
+        self._is_hidden = not show
 
     def is_touching(self, sprite_or_point):
         rect = self._secondary_pygame_surface.get_rect()
@@ -871,7 +888,7 @@ def set_gravity(vertical=-100, horizontal=None):
     global gravity
     gravity.vertical = vertical*_SPEED_MULTIPLIER,
     if graivty.horizontal != None:
-        gravity.horizontal horizontal*_SPEED_MULTIPLIER
+        gravity.horizontal = horizontal*_SPEED_MULTIPLIER
 
     _physics_space.gravity = gravity.horizontal, gravity.vertical
 
@@ -888,9 +905,9 @@ _physics_space.add(_walls)
 
 
 def new_box(color='black', x=0, y=0, width=100, height=200, border_color='light blue', border_width=0, angle=0, transparency=100, size=100):
-    return box(color=color, x=x, y=y, width=width, height=height, border_color=border_color, border_width=border_width, angle=angle, transparency=transparency, size=size)
+    return Box(color=color, x=x, y=y, width=width, height=height, border_color=border_color, border_width=border_width, angle=angle, transparency=transparency, size=size)
 
-class box(Sprite):
+class Box(Sprite):
     def __init__(self, color='black', x=0, y=0, width=100, height=200, border_color='light blue', border_width=0, transparency=100, size=100, angle=0):
         self._x = x
         self._y = y
@@ -903,6 +920,7 @@ class box(Sprite):
         self._transparency = transparency
         self._size = size
         self._angle = angle
+        self._is_clicked = False
         self._is_hidden = False
         self.physics = None
 
@@ -1101,6 +1119,7 @@ class line(Sprite):
         self._transparency = transparency
         self._size = size
         self._is_hidden = False
+        self._is_clicked = False
         self.physics = None
 
         self._when_clicked_callbacks = []
@@ -1520,7 +1539,7 @@ def _game_loop():
 
         sprite._is_clicked = False
 
-        if sprite.is_hidden():
+        if sprite.is_hidden:
             continue
 
         ######################################################
@@ -1548,7 +1567,7 @@ def _game_loop():
         #################################
         # @sprite.when_clicked events
         #################################
-        if mouse.is_clicked() and not type(sprite) == line:
+        if mouse.is_clicked and not type(sprite) == line:
             if _point_touching_sprite(mouse, sprite):
                 # only run sprite clicks on the frame the mouse was clicked
                 if click_happened_this_frame:
@@ -1652,42 +1671,11 @@ def start_program():
 
 
 """
-cool stuff to add:
-    @sprite.when_touched
-
-    play sound / music
-    play.music('jam.mp3', loop=False)
-    play.stop_music('jam.mp3')
-    play.sound('jam.mp3')
-    play.volume = 2
-    play.set_backdrop('backgrounds/waterfall.png', fit_to_screen=False, x=0,y=0)
-    sprite.flip(direction='left-right') sprite.flip(direction='up-down')
-    sprite.flip(left_right=True, up_down=False)
-
     maybe use pygame.text at some point: https://github.com/cosmologicon/pygame-text - make play.new_text_extra()
     text.wrapping = True
 
-    add pygame images to cache for fast new sprite creation (reuse image.png, font)
 
 
 
 
-[ ] how to make a text input box simply?
-[ ] how to make paint app?
-[ ] how to make midi keyboard app?
-[ ] how to make simple jumping box character with gravity?
-[ ] how to make more advanced platformer?
-[ ] how to make shooter? http://osmstudios.com/tutorials/your-first-love2d-game-in-200-lines-part-1-of-3
-[ ] how to make point and click tic-tac-toe?
-
-funny game idea: pong game where paddle shrinks unless you get powerups that spawn randomly in your zone
-
-
-IDE ideas:
-    - add helpful comment about any code appearing below play.start_program() not running. I made this mistake and it was confusing
-    - if pasting in event code (e.g. @play.when_key_pressed async def do(key)), make the indent level all the way to the left
-    - if pasting in sprite code (e.g. hide()), find the last defined sprite before the cursor and call the method on that.
-    - if command doesn't have visible effect (i.e. is_hidden()), print it or create a conditional (if sprite.is_hidden(): print("the sprite is hidden"))
-    - if pasting in awaitable code (e.g. await play.timer(seconds=1.0)), somehow make sure it's in an async function
-    - if possible, always paste full working example code that will do something visible
 """
