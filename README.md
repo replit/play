@@ -92,9 +92,9 @@ This will put a tall, black box in the middle of the screen.
 If you want to change where the image is on the screen, try changing `x=0` (horizontal position) and `y=0` (vertical position). Positive x is to the right and positive y is up. You can also change the color by changing `'black'` to another color name, like `'orange'`.
 
 
-#### `play.new_sprite()`
+#### `play.new_image()`
 ```python
-character = play.new_sprite(image='character.png', x=0, y=0, angle=0, size=100, transparency=100)
+character = play.new_image(image='character.png', x=0, y=0, angle=0, size=100, transparency=100)
 ```
 
 This will place an image in the middle of the screen. Make sure you have a file named `character.png` in your project files for the code above to work.
@@ -237,8 +237,8 @@ Sprites (images and text) have a few simple commands:
 
 - **`sprite.move(10)`** — moves the sprite 10 pixels in the direction it's facing (starts facing right). Use negative numbers (-10) to go backward.
 - **`sprite.turn(20)`** — Turns the sprite 20 degrees counter-clockwise. Use negative numbers (-20) to turn the other way.
-- **`sprite.go_to(other_sprite)`** — Makes `sprite` go to another sprite named `other_sprite`'s position on the screen.
-- **`sprite.go_to(x=100, y=50)`** — Makes `sprite` go to x=100, y=50 (right and up a little).
+- **`sprite.go_to(other_sprite)`** — Makes `sprite` jump to another sprite named `other_sprite`'s position on the screen. Can also be used to make the sprite follow the mouse: `sprite.go_to(play.mouse)`.
+- **`sprite.go_to(x=100, y=50)`** — Makes `sprite` jump to x=100, y=50 (right and up a little).
 - **`sprite.point_towards(other_sprite)`** — Turns `sprite` so it points at another sprite called `other_sprite`.
 - **`sprite.point_towards(x=100, y=50)`** — Turns `sprite` so it points toward x=100, y=50 (right and up a little).
 - **`sprite.hide()`** — Hides `sprite`. It can't be clicked when it's hidden.
@@ -513,9 +513,9 @@ def do(key):
     text.words = f'{key} pressed!'
 ```
 
-#### `@play.when_key_released`
+#### `@play.when_key_released()`
 
-Exactly like `@play.when_key_pressed` but runs the code when specific keys are released.
+Exactly like `@play.when_key_pressed()` but runs the code when specific keys are released.
 
 In the code below, text will appear on screen only if the `up` arrow is pressed.
 
@@ -761,11 +761,11 @@ Python Play was designed with the following principles in mind:
 
 - No boilerplate - every line of code should do something meaningful and understandable. We want to limit the number of times a learner needs to ask "why do we have to include this line of code?"
 
-- As much as possible, commands should have immediate visual effects. For example, if a programmer types a `new_sprite` command the sprite should show up immediately on the screen, they shouldn't need to understand the invisible distinction between initializing a sprite and drawing the sprite.
+- As much as possible, commands should have immediate visual effects. For example, if a programmer types a `new_image` command the sprite should show up immediately on the screen. They shouldn't need to understand the invisible distinction between initializing a sprite and drawing the sprite.
 
 - Lines of code should be easily copy and pasted.
 
-- Command values should have descriptive labels that make it as clear as possible what the value means. Instead of `play.new_sprite('character.png', 50, 100)`, `play.new_sprite(image='character.png', x=50, y=100)`.
+- Command values should have descriptive labels that make it as clear as possible what the value means. Instead of `play.new_image('character.png', 50, 100)`, `play.new_image(image='character.png', x=50, y=100)`.
 
 - Use plain English as much as possible. For mathematical concepts, try to use language programmers might see in math classes. Try to use short names that are easier for younger people to type and spell. Make errors as clear and constructive as possible. Many of the commands and names were borrowed from Scratch, whose designers have spent decades working with children and observing what language makes sense to them.
 
