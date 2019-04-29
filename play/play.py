@@ -875,19 +875,20 @@ class _Physics(object):
             self._pymunk_body.velocity_func = lambda body, gravity, damping, dt: None
 
 class _Gravity(object):
+    # TODO: make this default to vertical if horizontal is 0?
     vertical = -100 * _SPEED_MULTIPLIER
     horizontal = 0
 
-# vertical, horizontal
 gravity = _Gravity()
 _physics_space = _pymunk.Space()
 _physics_space.sleep_time_threshold = 0.5 
+_physics_space.idle_speed_threshold = 0 # pymunk estimates good threshold based on gravity
 _physics_space.gravity = gravity.horizontal, gravity.vertical
 
 def set_gravity(vertical=-100, horizontal=None):
     global gravity
-    gravity.vertical = vertical*_SPEED_MULTIPLIER,
-    if graivty.horizontal != None:
+    gravity.vertical = vertical*_SPEED_MULTIPLIER
+    if horizontal != None:
         gravity.horizontal = horizontal*_SPEED_MULTIPLIER
 
     _physics_space.gravity = gravity.horizontal, gravity.vertical
