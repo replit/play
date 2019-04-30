@@ -250,7 +250,55 @@ def _make_async(func):
         return func(*args, **kwargs)
     return async_func
 
-class Group(object):
+class _MetaGroup(type):
+    def __iter__(cls):
+        # items added via class variables, e.g.
+        #   class Button(play.Group):
+        #      text = play.new_text('click me')
+        for item in cls.__dict__.values():
+            if isinstance(item, Sprite):
+                yield item
+
+    def __getattr__(cls, attr):
+        """
+        E.g.
+            class group(play.Group):
+                t = play.new_text() 
+            group.move(10) # calls move(10) on all the group's sprites
+        """
+
+        def f(*args, **kwargs):
+            results = []
+            for sprite in cls:
+                result = getattr(sprite, attr)
+                if callable(result):
+                    result(*args, **kwargs)
+                else:
+                    results.append(attr)
+            if results:
+                return results
+        return f
+
+    @property
+    def x(cls):
+        return _mean(sprite.x for sprite in cls)
+    @x.setter
+    def x(cls, new_x):
+        x_offset = new_x - cls.x
+        for sprite in cls:
+            sprite.x += x_offset
+
+    @property
+    def y(cls):
+        return _mean(sprite.y for sprite in cls)
+    @y.setter
+    def y(cls, new_y):
+        y_offset = new_y - cls.y
+        for sprite in cls:
+            sprite.y += y_offset
+
+
+class Group(metaclass=_MetaGroup):
     """
     A way to group sprites together. A group can either be made like this:
 
@@ -294,36 +342,6 @@ class Group(object):
     def __iter__(self):
         for sprite in self.sprites:
             yield sprite
-
-    def show(self):
-        for sprite in self.sprites:
-            sprite.show()
-
-    def hide(self):
-        for sprite in self.sprites:
-            sprite.hide()
-
-    @classmethod
-    def move(cls):
-        for sprite in cls.sprites():
-            sprite.move()
-
-    def move(self):
-        for sprite in self.sprites():
-            sprite.move()
-
-    @property 
-    def x(self):
-        return _mean(sprite.x for sprite in self)
-    @x.setter
-    def x(self, new_x):
-        x_offset = new_x - self.x
-        for sprite in self:
-            sprite.x += x_offset
-
-    @property 
-    def y(self):
-        return _mean(sprite.y for sprite in self)
 
     def go_to(self, x_or_sprite, y):
         try:
