@@ -1,6 +1,7 @@
 import os as _os
 import logging as _logging
 import warnings as _warnings
+import inspect as _inspect
 
 import pygame
 pygame.init()
@@ -47,6 +48,10 @@ class _screen(object):
     @width.setter
     def width(self, _width):
         self._width = _width
+
+        _remove_walls()
+        _create_walls()
+
         pygame.display.set_mode((self._width, self._height))
 
     @property 
@@ -55,6 +60,10 @@ class _screen(object):
     @height.setter
     def height(self, _height):
         self._height = _height
+
+        _remove_walls()
+        _create_walls()
+
         pygame.display.set_mode((self._width, self._height))
 
     @property 
@@ -911,17 +920,21 @@ def set_gravity(vertical=-100, horizontal=None):
 
     _physics_space.gravity = gravity.horizontal, gravity.vertical
 
-_walls = [
-    _pymunk.Segment(_physics_space.static_body, [screen.left, screen.top], [screen.right, screen.top], 0.0), # top
-    _pymunk.Segment(_physics_space.static_body, [screen.left, screen.bottom], [screen.right, screen.bottom], 0.0), # bottom
-    _pymunk.Segment(_physics_space.static_body, [screen.left, screen.bottom], [screen.left, screen.top], 0.0), # left
-    _pymunk.Segment(_physics_space.static_body, [screen.right, screen.bottom], [screen.right, screen.top], 0.0), # right
-]
-for shape in _walls:
-    shape.elasticity = 1.0
-    shape.friction = .1
-_physics_space.add(_walls)
-
+def _create_wall(a, b):
+    segment = _pymunk.Segment(_physics_space.static_body, a, b, 0.0)
+    segment.elasticity = 1.0
+    segment.friction = .1
+    _physics_space.add(segment)
+    return segment
+_walls = []
+def _create_walls():
+    _walls.append(_create_wall([screen.left, screen.top], [screen.right, screen.top])) # top
+    _walls.append(_create_wall([screen.left, screen.bottom], [screen.right, screen.bottom])) # bottom
+    _walls.append(_create_wall([screen.left, screen.bottom], [screen.left, screen.top])) # left
+    _walls.append(_create_wall([screen.right, screen.bottom], [screen.right, screen.top])) # right
+def _remove_walls():
+    _physics_space.remove(_walls)
+    _walls.clear()
 
 def new_box(color='black', x=0, y=0, width=100, height=200, border_color='light blue', border_width=0, angle=0, transparency=100, size=100):
     return Box(color=color, x=x, y=y, width=width, height=height, border_color=border_color, border_width=border_width, angle=angle, transparency=transparency, size=size)
@@ -1632,17 +1645,40 @@ def _game_loop():
 
 
 async def timer(seconds=1.0):
+    """
+    Wait a number of seconds. Used with the await keyword like this:
+
+    @play.repeat_forever
+    async def do():
+        await play.timer(seconds=2)
+        print('hi')
+
+    """
     await _asyncio.sleep(seconds)
     return True
 
 async def animate():
+
     await _asyncio.sleep(0)
+
+# def _get_class_that_defined_method(meth):
+#     if inspect.ismethod(meth):
+#         for cls in inspect.getmro(meth.__self__.__class__):
+#            if cls.__dict__.get(meth.__name__) is meth:
+#                 return cls
+#         meth = meth.__func__  # fallback to __qualname__ parsing
+#     if inspect.isfunction(meth):
+#         cls = getattr(inspect.getmodule(meth),
+#                       meth.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0])
+#         if isinstance(cls, type):
+#             return cls
+#     return getattr(meth, '__objclass__', None)  # handle special descriptor objects
 
 _repeat_forever_callbacks = []
 # @decorator
 def repeat_forever(func):
     """
-    Calls the given function repeatedly.
+    Calls the given function repeatedly in the game loop.
 
     Example:
 
@@ -1667,6 +1703,15 @@ def repeat_forever(func):
 _when_program_starts_callbacks = []
 # @decorator
 def when_program_starts(func):
+    """
+    Call code right when the program starts.
+
+    Used like this:
+
+    @play.when_program_starts
+    def do():
+        print('the program just started!')
+    """
     async_callback = _make_async(func)
     async def wrapper(*args, **kwargs):
         return await async_callback(*args, **kwargs)
@@ -1674,9 +1719,26 @@ def when_program_starts(func):
     return func
 
 def repeat(number_of_times):
+    """
+    Repeat a set of commands a certain number of times. 
+
+    Equivalent to `range(1, number_of_times+1)`.
+
+    Used like this:
+
+    @play.repeat_forever
+    async def do():
+        for count in play.repeat(10):
+            print(count)
+    """
     return range(1, number_of_times+1)
 
 def start_program():
+    """
+    Calling this function starts your program running.
+
+    play.start_program() should almost certainly go at the very end of your program.
+    """
     for func in _when_program_starts_callbacks:
         _loop.create_task(func())
 
@@ -1686,15 +1748,3 @@ def start_program():
     finally:
         _logging.getLogger("asyncio").setLevel(_logging.CRITICAL)
         pygame.quit()
-
-
-
-"""
-    maybe use pygame.text at some point: https://github.com/cosmologicon/pygame-text - make play.new_text_extra()
-    text.wrapping = True
-
-
-
-
-
-"""
