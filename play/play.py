@@ -23,9 +23,20 @@ def _clamp(num, min_, max_):
         return max_
     return num
 
+def _point_touching_line(point, line):
+    return line.x <= point.x <= line.x1 and line.y <= point.y <= line.y1
+
+def _point_touching_circle(point, circle):
+    return circle.x-circle.radius <= point.x <= circle.x+circle.radius and circle.y-circle.radius <= point.y <= circle.y+circle.radius
+
 def _point_touching_sprite(point, sprite):
-    # todo: custom code for circle, line, rotated rectangley sprites
-    return sprite.left <= point.x <= sprite.right and sprite.bottom <= point.y <= sprite.top
+    # todo: custom code for rotated rectangley sprites
+    if isinstance(sprite, line):
+        return _point_touching_line(point, sprite)
+    elif isinstance(sprite, Circle):
+        return _point_touching_circle(point, sprite)
+    else:
+        return sprite.left <= point.x <= sprite.right and sprite.bottom <= point.y <= sprite.top
 
 def _sprite_touching_sprite(a, b):
     # todo: custom code for circle, line, rotated rectangley sprites
@@ -41,7 +52,7 @@ class _screen(object):
         self._width = width
         self._height = height
 
-    @property 
+    @property
     def width(self):
         return self._width
     @width.setter
@@ -49,7 +60,7 @@ class _screen(object):
         self._width = _width
         pygame.display.set_mode((self._width, self._height))
 
-    @property 
+    @property
     def height(self):
         return self._height
     @height.setter
@@ -57,19 +68,19 @@ class _screen(object):
         self._height = _height
         pygame.display.set_mode((self._width, self._height))
 
-    @property 
+    @property
     def top(self):
         return self.height / 2
 
-    @property 
+    @property
     def bottom(self):
         return self.height / -2
 
-    @property 
+    @property
     def left(self):
         return self.width / -2
 
-    @property 
+    @property
     def right(self):
         return self.width / 2
 
@@ -239,7 +250,7 @@ To fix this, just add the word 'await' before play.{unawaited_function_name} on 
 
 def _make_async(func):
     """
-    Turn a non-async function into an async function. 
+    Turn a non-async function into an async function.
     Used mainly in decorators like @repeat_forever.
     """
     if _asyncio.iscoroutinefunction(func):
@@ -263,7 +274,7 @@ class _MetaGroup(type):
         """
         E.g.
             class group(play.Group):
-                t = play.new_text() 
+                t = play.new_text()
             group.move(10) # calls move(10) on all the group's sprites
         """
 
@@ -373,7 +384,7 @@ class Group(metaclass=_MetaGroup):
     def left(self):
         return min(sprite.left for sprite in self)
 
-    @property 
+    @property
     def width(self):
         return self.right - self.left
 
@@ -461,7 +472,7 @@ If the file is in a folder, make sure you add the folder name, too.""") from exc
     def turn(self, degrees=10):
         self.angle += degrees
 
-    @property 
+    @property
     def x(self):
         return self._x
     @x.setter
@@ -476,7 +487,7 @@ If the file is in a folder, make sure you add the folder name, too.""") from exc
             if self.physics._pymunk_body.body_type == _pymunk.Body.STATIC:
                 _physics_space.reindex_static()
 
-    @property 
+    @property
     def y(self):
         return self._y
     @y.setter
@@ -491,7 +502,7 @@ If the file is in a folder, make sure you add the folder name, too.""") from exc
             if self.physics._pymunk_body.body_type == _pymunk.Body.STATIC:
                 _physics_space.reindex_static()
 
-    @property 
+    @property
     def transparency(self):
         return self._transparency
 
@@ -509,7 +520,7 @@ You might want to look in your code where you're setting transparency and make s
         self._transparency = _clamp(alpha, 0, 100)
         self._should_recompute_secondary_surface = True
 
-    @property 
+    @property
     def image(self):
         return self._image
 
@@ -518,7 +529,7 @@ You might want to look in your code where you're setting transparency and make s
         self._image = image_filename
         self._should_recompute_primary_surface = True
 
-    @property 
+    @property
     def angle(self):
         return self._angle
 
@@ -530,7 +541,7 @@ You might want to look in your code where you're setting transparency and make s
         if self.physics:
             self.physics._pymunk_body.angle = _math.radians(_angle)
 
-    @property 
+    @property
     def size(self):
         return self._size
 
@@ -602,7 +613,7 @@ You might want to look in your code where you're setting transparency and make s
             self.y = x.y
         except AttributeError:
             self.x = x
-            self.y = y 
+            self.y = y
 
     def distance_to(self, x, y=None):
         assert(not x is None)
@@ -626,36 +637,36 @@ You might want to look in your code where you're setting transparency and make s
             self.physics._remove()
         all_sprites.remove(self)
 
-    @property 
+    @property
     def width(self):
         return self._secondary_pygame_surface.get_width()
 
-    @property 
+    @property
     def height(self):
         return self._secondary_pygame_surface.get_height()
 
-    @property 
+    @property
     def right(self):
         return self.x + self.width/2
     @right.setter
     def right(self, x):
         self.x = x - self.width/2
 
-    @property 
+    @property
     def left(self):
         return self.x - self.width/2
     @left.setter
     def left(self, x):
         self.x = x + self.width/2
 
-    @property 
+    @property
     def top(self):
         return self.y + self.height/2
     @top.setter
     def top(self, y):
         self.y = y - self.height/2
 
-    @property 
+    @property
     def bottom(self):
         return self.y - self.height/2
     @bottom.setter
@@ -798,7 +809,7 @@ class _Physics(object):
 
             if not self.obeys_gravity:
                 self._pymunk_body.velocity_func = lambda body, gravity, damping, dt: None
-            
+
             if isinstance(self.sprite, Circle):
                 self._pymunk_shape = _pymunk.Circle(self._pymunk_body, self.sprite.radius, (0,0))
             elif isinstance(self.sprite, line):
@@ -827,7 +838,7 @@ class _Physics(object):
         if self._pymunk_shape:
             _physics_space.remove(self._pymunk_shape)
 
-    @property 
+    @property
     def can_move(self):
         return self._can_move
     @can_move.setter
@@ -838,15 +849,15 @@ class _Physics(object):
             self._remove()
             self._make_pymunk()
 
-    @property 
+    @property
     def x_speed(self):
-        return self._x_speed / _SPEED_MULTIPLIER 
+        return self._x_speed / _SPEED_MULTIPLIER
     @x_speed.setter
     def x_speed(self, _x_speed):
         self._x_speed = _x_speed * _SPEED_MULTIPLIER
         self._pymunk_body.velocity = self._x_speed, self._pymunk_body.velocity[1]
 
-    @property 
+    @property
     def y_speed(self):
         return self._y_speed / _SPEED_MULTIPLIER
     @y_speed.setter
@@ -854,7 +865,7 @@ class _Physics(object):
         self._y_speed = _y_speed * _SPEED_MULTIPLIER
         self._pymunk_body.velocity = self._pymunk_body.velocity[0], self._y_speed
 
-    @property 
+    @property
     def bounciness(self):
         return self._bounciness
     @bounciness.setter
@@ -862,7 +873,7 @@ class _Physics(object):
         self._bounciness = _bounciness
         self._pymunk_shape.elasticity = _clamp(self._bounciness, 0, .99)
 
-    @property 
+    @property
     def stable(self):
         return self._stable
     @stable.setter
@@ -873,7 +884,7 @@ class _Physics(object):
             self._remove()
             self._make_pymunk()
 
-    @property 
+    @property
     def mass(self):
         return self._mass
     @mass.setter
@@ -881,7 +892,7 @@ class _Physics(object):
         self._mass = _mass
         self._pymunk_body.mass = _mass
 
-    @property 
+    @property
     def obeys_gravity(self):
         return self._obeys_gravity
     @obeys_gravity.setter
@@ -899,7 +910,7 @@ class _Gravity(object):
 
 gravity = _Gravity()
 _physics_space = _pymunk.Space()
-_physics_space.sleep_time_threshold = 0.5 
+_physics_space.sleep_time_threshold = 0.5
 _physics_space.idle_speed_threshold = 0 # pymunk estimates good threshold based on gravity
 _physics_space.gravity = gravity.horizontal, gravity.vertical
 
@@ -967,7 +978,7 @@ class Box(Sprite):
 
 
     ##### width #####
-    @property 
+    @property
     def width(self):
         return self._width
 
@@ -978,7 +989,7 @@ class Box(Sprite):
 
 
     ##### height #####
-    @property 
+    @property
     def height(self):
         return self._height
 
@@ -989,7 +1000,7 @@ class Box(Sprite):
 
 
     ##### color #####
-    @property 
+    @property
     def color(self):
         return self._color
 
@@ -999,7 +1010,7 @@ class Box(Sprite):
         self._should_recompute_primary_surface = True
 
     ##### border_color #####
-    @property 
+    @property
     def border_color(self):
         return self._border_color
 
@@ -1009,7 +1020,7 @@ class Box(Sprite):
         self._should_recompute_primary_surface = True
 
     ##### border_width #####
-    @property 
+    @property
     def border_width(self):
         return self._border_width
 
@@ -1069,7 +1080,7 @@ class Circle(Sprite):
         self._compute_secondary_surface(force=True)
 
     ##### color #####
-    @property 
+    @property
     def color(self):
         return self._color
 
@@ -1079,7 +1090,7 @@ class Circle(Sprite):
         self._should_recompute_primary_surface = True
 
     ##### radius #####
-    @property 
+    @property
     def radius(self):
         return self._radius
 
@@ -1091,7 +1102,7 @@ class Circle(Sprite):
             self.physics._pymunk_shape.unsafe_set_radius(self._radius)
 
     ##### border_color #####
-    @property 
+    @property
     def border_color(self):
         return self._border_color
 
@@ -1101,7 +1112,7 @@ class Circle(Sprite):
         self._should_recompute_primary_surface = True
 
     ##### border_width #####
-    @property 
+    @property
     def border_width(self):
         return self._border_width
 
@@ -1180,7 +1191,7 @@ class line(Sprite):
         self._should_recompute_secondary_surface = False
 
     ##### color #####
-    @property 
+    @property
     def color(self):
         return self._color
 
@@ -1190,7 +1201,7 @@ class line(Sprite):
         self._should_recompute_primary_surface = True
 
     ##### thickness #####
-    @property 
+    @property
     def thickness(self):
         return self._thickness
 
@@ -1204,7 +1215,7 @@ class line(Sprite):
         return self._length * _math.cos(radians) + self.x, self._length * _math.sin(radians) + self.y
 
     ##### length #####
-    @property 
+    @property
     def length(self):
         return self._length
 
@@ -1215,7 +1226,7 @@ class line(Sprite):
         self._should_recompute_primary_surface = True
 
     ##### angle #####
-    @property 
+    @property
     def angle(self):
         return self._angle
 
@@ -1235,7 +1246,7 @@ class line(Sprite):
         return _math.sqrt(dx**2 + dy**2), _math.degrees(_math.atan2(dy, dx))
 
     ##### x1 #####
-    @property 
+    @property
     def x1(self):
         return self._x1
 
@@ -1246,7 +1257,7 @@ class line(Sprite):
         self._should_recompute_primary_surface = True
 
     ##### y1 #####
-    @property 
+    @property
     def y1(self):
         return self._y1
 
@@ -1325,7 +1336,7 @@ To fix this, either set the font to None, or make sure you have a font file (usu
         self._font_size = size
         self._should_recompute_primary_surface = True
 
-    @property 
+    @property
     def color(self):
         return self._color
 
