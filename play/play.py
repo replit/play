@@ -932,6 +932,7 @@ def _create_walls():
     _walls.append(_create_wall([screen.left, screen.bottom], [screen.right, screen.bottom])) # bottom
     _walls.append(_create_wall([screen.left, screen.bottom], [screen.left, screen.top])) # left
     _walls.append(_create_wall([screen.right, screen.bottom], [screen.right, screen.top])) # right
+_create_walls()
 def _remove_walls():
     _physics_space.remove(_walls)
     _walls.clear()
