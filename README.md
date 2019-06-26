@@ -84,37 +84,68 @@ To get images or text on the screen, use the following commands. (Copy and paste
 
 #### `play.new_box()`
 ```python
-box = play.new_box(color='black', x=0, y=0, width=100, height=200, border_color="light blue", border_width=0)
+box = play.new_box(
+    color='black',
+    x=0,
+    y=0,
+    width=100,
+    height=200,
+    border_color="light blue",
+    border_width=10
+    )
 ```
 
 This will put a tall, black box in the middle of the screen.
 
-If you want to change where the image is on the screen, try changing `x=0` (horizontal position) and `y=0` (vertical position). Positive x is to the right and positive y is up. You can also change the color by changing `'black'` to another color name, like `'orange'`.
+If you want to change where the image is on the screen, try changing `x=0` (horizontal position) and `y=0` (vertical position). Just like Scratch, the middle of the screen is (0,0). You can also change the color by changing `'black'` to another color name, like `'orange'`.
 
 
 #### `play.new_image()`
 ```python
-character = play.new_image(image='character.png', x=0, y=0, angle=0, size=100, transparency=100)
+character = play.new_image(
+    image='character.png', 
+    x=0, 
+    y=0, 
+    angle=0, 
+    size=100, 
+    transparency=100
+    )
 ```
 
-This will place an image in the middle of the screen. Make sure you have a file named `character.png` in your project files for the code above to work.
+This will place an image in the middle of the screen. Make sure you have a file named `character.png` in your project files for the code above to work. You can find images online at sites like http://icons.iconarchive.com/icons/icojam/animals/64/01-bull-icon.png
 
 
 
 #### `play.new_text()`
 ```python
-greeting = play.new_text(words='hi :)', x=0, y=0, angle=0, font=None, font_size=50, color='black', transparency=100)
+greeting = play.new_text(
+    words='hi there', 
+    x=0, 
+    y=0, 
+    angle=0, 
+    font=None, 
+    font_size=50, 
+    color='black', 
+    transparency=100
+    )
 ```
 
 This will put some text on the screen.
 
-If you want to change the font, you'll need a font file (usually named something like `Arial.ttf`) in your project files. Then you can change `font=None` to `font='Arial.ttf'`.
+If you want to change the font, you'll need a font file (usually named something like `Arial.ttf`) in your project files. Then you can change `font=None` to `font='Arial.ttf'`. You can find font files at sites like https://www.dafont.com
 
 
 
 #### `play.new_circle()`
 ```python
-ball = play.new_circle(color='black', x=0, y=0, radius=100, border_color="light blue", border_width=0, transparency=100)
+ball = play.new_circle(
+    color='black', 
+    x=0, 
+    y=0, 
+    radius=100, 
+    border_color="light blue", 
+    border_width=10, 
+    transparency=100)
 ```
 
 This will put a black circle in the middle of the screen.
@@ -123,7 +154,16 @@ This will put a black circle in the middle of the screen.
 
 #### `play.new_line()`
 ```python
-line = play.new_line(color='black', x=0, y=0, length=100, angle=0, thickness=1, x1=None, y1=None)
+line = play.new_line(
+    color='black', 
+    x=0, 
+    y=0, 
+    length=100, 
+    angle=0, 
+    thickness=1, 
+    x1=None, 
+    y1=None
+    )
 ```
 
 This will create a thin line on the screen.
