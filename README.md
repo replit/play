@@ -85,13 +85,13 @@ To get images or text on the screen, use the following commands. (Copy and paste
 #### `play.new_box()`
 ```python
 box = play.new_box(
-    color='black',
-    x=0,
-    y=0,
-    width=100,
-    height=200,
-    border_color="light blue",
-    border_width=10
+        color='black',
+        x=0,
+        y=0,
+        width=100,
+        height=200,
+        border_color="light blue",
+        border_width=10
     )
 ```
 
@@ -103,12 +103,12 @@ If you want to change where the image is on the screen, try changing `x=0` (hori
 #### `play.new_image()`
 ```python
 character = play.new_image(
-    image='character.png', 
-    x=0, 
-    y=0, 
-    angle=0, 
-    size=100, 
-    transparency=100
+        image='character.png', 
+        x=0, 
+        y=0, 
+        angle=0, 
+        size=100, 
+        transparency=100
     )
 ```
 
@@ -119,33 +119,34 @@ This will place an image in the middle of the screen. Make sure you have a file 
 #### `play.new_text()`
 ```python
 greeting = play.new_text(
-    words='hi there', 
-    x=0, 
-    y=0, 
-    angle=0, 
-    font=None, 
-    font_size=50, 
-    color='black', 
-    transparency=100
+        words='hi there', 
+        x=0, 
+        y=0, 
+        angle=0, 
+        font=None, 
+        font_size=50, 
+        color='black', 
+        transparency=100
     )
 ```
 
 This will put some text on the screen.
 
-If you want to change the font, you'll need a font file (usually named something like `Arial.ttf`) in your project files. Then you can change `font=None` to `font='Arial.ttf'`. You can find font files at sites like https://www.dafont.com
+If you want to change the font, you'll need a font file (usually named something like `Arial.ttf`) in your project files. Then you can change `font=None` to `font='Arial.ttf'`. You can find font files at sites like [DaFont](https://www.dafont.com).
 
 
 
 #### `play.new_circle()`
 ```python
 ball = play.new_circle(
-    color='black', 
-    x=0, 
-    y=0, 
-    radius=100, 
-    border_color="light blue", 
-    border_width=10, 
-    transparency=100)
+        color='black', 
+        x=0, 
+        y=0, 
+        radius=100, 
+        border_color="light blue", 
+        border_width=10, 
+        transparency=100
+    )
 ```
 
 This will put a black circle in the middle of the screen.
@@ -155,14 +156,14 @@ This will put a black circle in the middle of the screen.
 #### `play.new_line()`
 ```python
 line = play.new_line(
-    color='black', 
-    x=0, 
-    y=0, 
-    length=100, 
-    angle=0, 
-    thickness=1, 
-    x1=None, 
-    y1=None
+        color='black', 
+        x=0, 
+        y=0, 
+        length=100, 
+        angle=0, 
+        thickness=1, 
+        x1=None, 
+        y1=None
     )
 ```
 
