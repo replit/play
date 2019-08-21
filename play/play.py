@@ -100,7 +100,7 @@ class _mouse(object):
     @property
     def is_clicked(self):
         # this is a property instead of a method because if a new programmer does:
-        #    if play.mouse.is_clicked:
+        #    if play.mouse.is_clicked: # <-- forgetting parentheses causes bad behavior
         #        ...
         # and is_clicked is a method (they forgot the parens), then it will always
         # return True. Better to eliminate the need for parens.

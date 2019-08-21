@@ -97,7 +97,7 @@ box = play.new_box(
 
 This will put a tall, black box in the middle of the screen.
 
-If you want to change where the image is on the screen, try changing `x=0` (horizontal position) and `y=0` (vertical position). Just like Scratch, the middle of the screen is (0,0). You can also change the color by changing `'black'` to another color name, like `'orange'`.
+If you want to change where the image is on the screen, try changing `x=0` (horizontal position) and `y=0` (vertical position). Just like Scratch, the middle of the screen is x=0, y=0. Increasing x moves the image right and decreasing x moves the image left. Likeswise, increasing y moves the image up and decreasing y moves the image down. You can also change the color by changing `'black'` to another color name, like `'orange'`.
 
 
 #### `play.new_image()`
