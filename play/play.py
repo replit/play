@@ -5,6 +5,7 @@ import inspect as _inspect
 
 import pygame
 pygame.init()
+import pygame.mixer
 import pygame.gfxdraw
 import pymunk as _pymunk
 
@@ -1348,8 +1349,15 @@ To fix this, either set the font to None, or make sure you have a font file (usu
         self._color = color_
         self._should_recompute_primary_surface = True
 
+def new_sound(sound):
+    return Sound(sound)
 
+class Sound():
+    def __init__(self, sound):
+        self.sound = pygame.mixer.Sound(sound)
 
+    def play(self):
+        self.sound.play()
 
 # @decorator
 def when_sprite_clicked(*sprites):
