@@ -816,3 +816,4 @@ Python Play was also designed with a custom Repl.it IDE in mind (coming soon), o
 While the learning curve for Python and Python Play are still far from ideal for new programmers, we still think Python Play provides a great way for new programmers to start programming with graphics.
 
 <3
+[![Run on Repl.it](https://repl.it/badge/github/replit/play)](https://repl.it/github/replit/play)
