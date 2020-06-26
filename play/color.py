@@ -149,6 +149,7 @@ color_names = {
 'whitesmoke':           (245, 245, 245),
 'yellow':               (255, 255,   0),
 'yellowgreen':          (154, 205,  50),
+'cactus':               (10 , 102,  54),
 'transparent':          (  0,   0,   0, 0),
 }
 
