@@ -39,7 +39,7 @@ The code above makes a game where you have to click the cat to win:
 
 **[You can try playing and changing this game on repl.it!](https://repl.it/@glench/Python-Play-sample-game)**
 
-Python Play is an excellent choice for beginner programmers to get started with graphics programming. It was designed to have similar commands and simplicity to [MIT's Scratch](https://scratch.mit.edu) and is distinguished from such projects as Pygame, Arcade, or Pygame Zero because of its lack of boiler plate code, its easy-to-understand plain-english commands, and intuitive API. [Read more about its design at the bottom of this document](#why-use-python-play).
+Python Play is an excellent choice for beginner programmers to get started with graphics programming. It was designed to have similar commands and simplicity to [MIT's Scratch](https://scratch.mit.edu) and is distinguished from such projects as Pygame, Arcade, or Pygame Zero because of its lack of boilerplate code, its easy-to-understand plain-English commands, and intuitive API. [Read more about its design at the bottom of this document](#why-use-python-play).
 
 # How to install Python Play
 
@@ -97,7 +97,7 @@ box = play.new_box(
 
 This will put a tall, black box in the middle of the screen.
 
-If you want to change where the image is on the screen, try changing `x=0` (horizontal position) and `y=0` (vertical position). Just like Scratch, the middle of the screen is x=0, y=0. Increasing x moves the image right and decreasing x moves the image left. Likeswise, increasing y moves the image up and decreasing y moves the image down. You can also change the color by changing `'black'` to another color name, like `'orange'`.
+If you want to change where the image is on the screen, try changing `x=0` (horizontal position) and `y=0` (vertical position). Just like Scratch, the middle of the screen is x=0, y=0. Increasing x moves the image right and decreasing x moves the image left. Likewise, increasing y moves the image up and decreasing y moves the image down. You can also change the color by changing `'black'` to another color name, like `'orange'`.
 
 
 #### `play.new_image()`
@@ -349,7 +349,7 @@ For lines, the `x` and `y` coordinates are where the start of the line is. You c
 
 
 
-These properties can changed to do the same things as the sprite commands above. For example,
+These properties can be changed to do the same things as the sprite commands above. For example,
 
 ```python
 sprite.go_to(other_sprite)
@@ -804,7 +804,7 @@ Python Play was designed with the following principles in mind:
 
 - As much as possible, commands should have immediate visual effects. For example, if a programmer types a `new_image` command the sprite should show up immediately on the screen. They shouldn't need to understand the invisible distinction between initializing a sprite and drawing the sprite.
 
-- Lines of code should be easily copy and pasted.
+- Lines of code should be easily copied and pasted.
 
 - Command values should have descriptive labels that make it as clear as possible what the value means. Instead of `play.new_image('character.png', 50, 100)`, `play.new_image(image='character.png', x=50, y=100)`.
 
@@ -813,6 +813,6 @@ Python Play was designed with the following principles in mind:
 
 Python Play was also designed with a custom Repl.it IDE in mind (coming soon), one that significantly lowers the usability problems of programming (installing the language, using a text editor, using the terminal, running programs, showing which commands are available, etc).
 
-While the learning curve for Python and Python Play are still far from ideal for new programmers, we still think Python Play provides a great way for new programmers to start programming with graphics.
+While the learning curves for Python and Python Play are still far from ideal for new programmers, we still think Python Play provides a great way for new programmers to start programming with graphics.
 
 <3
