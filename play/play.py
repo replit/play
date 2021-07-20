@@ -776,7 +776,7 @@ class _Physics(object):
             self._pymunk_shape = _pymunk.Segment(self._pymunk_body, (self.sprite.x, self.sprite.y), (self.sprite.x1, self.sprite.y1), self.sprite.thickness)
         else:
             if self.stable:
-                moment = _pymunk.inf
+                moment = float('inf')
             elif isinstance(self.sprite, Circle):
                 moment = _pymunk.moment_for_circle(mass, 0, self.sprite.radius, (0, 0))
             elif isinstance(self.sprite, line):
